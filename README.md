@@ -1,6 +1,7 @@
 # Space Game Python CLI
 
 ## Example JSON files
+These files can be safely stored in the `game_resources` directory. 
 
 ### planets-file
 ```

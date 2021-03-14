@@ -26,12 +26,14 @@ def create_planet(db: Session, planet: schemas.PlanetCreate):
 
 def build_map(db: Session, planets):
     for planet in planets:
-        # create_planet(db, schemas.PlanetCreate.parse_obj({'name': planet['name']}))
         create_planet(db, schemas.PlanetCreate.parse_obj(planet))
 
     for planet in planets:
         db_planet = get_planet_by_name(db, planet['name'])
         for neighbor in planet['connections']:
             db_planet.make_connection(get_planet_by_name(db, neighbor))
+
+        db.commit()
+        db.refresh(db_planet)
 
     return get_planets(db)
