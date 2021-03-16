@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from src.schemas import Ship
+from .ship import Ship
 
 
 class PlanetBase(BaseModel):

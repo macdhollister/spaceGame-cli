@@ -3,9 +3,18 @@ from sqlalchemy.orm import Session
 from src import models
 from src import schemas
 
+from src.crud import planetCrud
+
 
 def get_ship_by_id(db: Session, ship_id: int):
     return db.query(models.Ship).filter_by(id=ship_id).first()
+
+
+def move_ship(db: Session, ship_id: int, destination_name: str):
+    ship = db.query(models.Ship).filter_by(id=ship_id)
+    ship.update({'location': destination_name})
+    db.commit()
+    return ship
 
 
 def create_ship(db: Session, ship: schemas.ShipCreate):

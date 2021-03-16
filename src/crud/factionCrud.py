@@ -7,7 +7,7 @@ from src import schemas
 
 
 def get_faction(db: Session, faction_id: int):
-    db_faction = db.query(models.Faction).filter(models.Faction.id == faction_id).first()
+    db_faction = db.query(models.Faction).filter_by(id=faction_id).first()
 
     # ships = []
     # for ship in db_faction.ships:
@@ -22,7 +22,7 @@ def get_faction(db: Session, faction_id: int):
 
 
 def get_faction_by_name(db: Session, faction: str):
-    return db.query(models.Faction).filter(models.Faction.faction_name == faction).first()
+    return db.query(models.Faction).filter_by(faction_name=faction).first()
 
 
 def get_factions(db: Session):

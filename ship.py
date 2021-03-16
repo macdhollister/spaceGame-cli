@@ -1,13 +1,15 @@
 """
 Usage:
     ship.py create --planet=<string> --faction=<string> --modules=<string>
-    ship.py destroy --ship_id=<integer>
+    ship.py destroy --ship-id=<integer>
+    ship.py move --ship-id=<integer> --destination=<string>
 
 Options:
     --planet=<string>       The planet on which to create the ship
     --faction=<string>      The owner of the ship
     --modules=<string>      The modules on the ship. Should match the regex ^([ABCDHMPSW][1-9]){1,10}$
-    --ship_id=<integer>     The unique identifier for a ship
+    --ship-id=<integer>     The unique identifier for a ship
+    --destination=<string>  The location a ship is to be moved
 """
 
 from sys import argv
@@ -41,7 +43,11 @@ def destroy_ship(args):
 
 
 def move_ship(args):
-    pass
+    destination = args['--destination']
+    ship_id = args['--ship-id']
+    database = args['db']
+
+    shipCrud.move_ship(database, ship_id, destination)
 
 
 switcher = {

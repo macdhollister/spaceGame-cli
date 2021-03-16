@@ -8,8 +8,12 @@ def get_planets(db: Session):
     return db.query(models.Planet).all()
 
 
+def get_planet_by_id(db: Session, planet_id: int):
+    return db.query(models.Planet).filter_by(id=planet_id).first()
+
+
 def get_planet_by_name(db: Session, planet_name: str):
-    return db.query(models.Planet).filter(models.Planet.name == planet_name).first()
+    return db.query(models.Planet).filter_by(name=planet_name).first()
 
 
 def create_planet(db: Session, planet: schemas.PlanetCreate):
