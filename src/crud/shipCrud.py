@@ -3,8 +3,6 @@ from sqlalchemy.orm import Session
 from src import models
 from src import schemas
 
-from src.crud import planetCrud
-
 
 def get_ship_by_id(db: Session, ship_id: int):
     return db.query(models.Ship).filter_by(id=ship_id).first()

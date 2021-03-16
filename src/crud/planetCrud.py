@@ -8,6 +8,13 @@ def get_planets(db: Session):
     return db.query(models.Planet).all()
 
 
+def reassign_planet(db: Session, planet_name: str, faction_name: str):
+    planet = db.query(models.Planet).filter_by(name=planet_name)
+    planet.update({'owner': faction_name})
+    db.commit()
+    return planet
+
+
 def get_planet_by_id(db: Session, planet_id: int):
     return db.query(models.Planet).filter_by(id=planet_id).first()
 

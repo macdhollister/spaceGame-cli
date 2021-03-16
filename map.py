@@ -2,9 +2,12 @@
 Usage:
     map.py generate_map --planets-file=<string>
     map.py print_map
+    map.py claim --planet-name=<string> --faction-name=<string>
 
 Options:
     --planets-file=<string>     A json file containing planet information
+    --planet-name=<string>      The name of a planet
+    --faction-name=<string>     The name of a faction
 """
 
 import json
@@ -46,9 +49,17 @@ def print_map(args):
         print(entry)
 
 
+def claim_planet(args):
+    planet_name = args['--planet-name']
+    faction_name = args['--faction-name']
+    database = args['db']
+    planetCrud.reassign_planet(database, planet_name, faction_name)
+
+
 switcher = {
     'generate_map': generate_map,
-    'print_map': print_map
+    'print_map': print_map,
+    'claim': claim_planet
 }
 
 
