@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-# from src.schemas import Ship
+from src.schemas import Ship
 
 
 class PlanetBase(BaseModel):
@@ -17,8 +17,9 @@ class PlanetCreate(PlanetBase):
 
 class Planet(PlanetBase):
     id: int
+    owner: str = None
     connections: List['Planet'] = []
-    # ships: List[Ship] = []
+    ships: List[Ship] = []
 
 
 # Update forward refs to allow Planet class to self reference

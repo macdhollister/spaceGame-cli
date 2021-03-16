@@ -15,6 +15,7 @@ class Faction(Base):
     is_active = Column(Boolean, default=True)
 
     ships = relationship('Ship', back_populates="owner_relationship")
+    planets = relationship('Planet', back_populates="owner_relationship")
     # turns = relationship('Turn', back_populates="faction_relationship")
 
     def __repr__(self):

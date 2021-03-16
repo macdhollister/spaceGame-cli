@@ -3,6 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 from src.schemas.ship import Ship
+from src.schemas.planet import Planet
 # from src.schemas.turn import Turn
 
 
@@ -21,4 +22,5 @@ class Faction(FactionBase):
     lp: int
     is_active: bool
     ships: List[Ship] = []
+    planets: List[Planet] = []
     # turns: List[Turn] = []

@@ -2,6 +2,7 @@ from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstra
 from sqlalchemy.orm import relationship
 
 from .Base import Base
+from .Faction import Faction
 
 connection = Table(
     'PlanetConnection', Base.metadata,
@@ -18,6 +19,7 @@ class Planet(Base):
     name = Column(String, unique=True, index=True)
     size = Column(String)
     resources = Column(Integer)
+    owner = Column(String, ForeignKey(Faction.faction_name), nullable=True)
 
     connections = relationship('Planet',
                                secondary=connection,
@@ -25,6 +27,8 @@ class Planet(Base):
                                secondaryjoin=id == connection.c.planet_b_id
                                )
     ships = relationship('Ship', back_populates="location_relationship")
+
+    owner_relationship = relationship(Faction, back_populates='planets')
 
     def make_connection(self, other):
         if other not in self.connections:
