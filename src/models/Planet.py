@@ -24,6 +24,7 @@ class Planet(Base):
                                primaryjoin=id == connection.c.planet_a_id,
                                secondaryjoin=id == connection.c.planet_b_id
                                )
+    ships = relationship('Ship', back_populates="location_relationship")
 
     def make_connection(self, other):
         if other not in self.connections:

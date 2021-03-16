@@ -9,7 +9,11 @@ def get_ship_by_id(db: Session, ship_id: int):
 
 
 def create_ship(db: Session, ship: schemas.ShipCreate):
-    db_ship = models.Ship(owner=ship.owner, modules=ship.modules)
+    db_ship = models.Ship(
+        owner=ship.owner,
+        modules=ship.modules,
+        location=ship.location
+    )
     db.add(db_ship)
     db.commit()
     db.refresh(db_ship)

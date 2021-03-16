@@ -19,14 +19,15 @@ from src.utils import db
 
 
 def create_ship(args):
-    # planet = args['--planet']
+    planet = args['--planet']
     faction = args['--faction']
     modules = args['--modules']
     database = args['db']
 
     ship = {
         'owner': faction,
-        'modules': modules
+        'modules': modules,
+        'location': planet
     }
 
     shipCrud.create_ship_from_dict(database, ship)
