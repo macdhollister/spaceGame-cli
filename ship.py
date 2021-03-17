@@ -7,7 +7,7 @@ Usage:
 Options:
     --planet=<string>       The planet on which to create the ship
     --faction=<string>      The owner of the ship
-    --modules=<string>      The modules on the ship. Should match the regex ^([ABCDHMPSW][1-9]){1,10}$
+    --modules=<string>      The modules on the ship. Should match the regex ^([ABCDHMPSWabcdhmpsw][1-9]){1,10}$
     --ship-id=<integer>     The unique identifier for a ship
     --destination=<string>  The location a ship is to be moved
 """
