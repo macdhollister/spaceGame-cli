@@ -6,6 +6,16 @@ from src import models
 from src import schemas
 
 
+def update_research(db: Session, faction_name: str, module_name: str, tech_level: int):
+    faction = db.query(models.Faction).filter_by(faction_name=faction_name)
+    faction_research = faction.first().research
+    faction_research[module_name] = tech_level
+
+    faction.update({'research': faction_research})
+    db.commit()
+    return faction
+
+
 def get_faction(db: Session, faction_id: int):
     db_faction = db.query(models.Faction).filter_by(id=faction_id).first()
 

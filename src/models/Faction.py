@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String, PickleType
 from sqlalchemy.orm import relationship
 
 from .Base import Base
@@ -12,6 +12,19 @@ class Faction(Base):
     mp = Column(Integer, default=40)
     rp = Column(Integer, default=25)
     lp = Column(Integer, default=2)
+
+    research = Column(PickleType, default={
+        "armor_plating": 1,
+        "command_bridge": 1,
+        "ecm_suite": 1,
+        "warp_drive": 1,
+        "hangar_bay": 1,
+        "marine_barracks": 1,
+        "point_defense_battery": 1,
+        "sensor_array": 1,
+        "heavy_weapons_bay": 1
+    })
+
     is_active = Column(Boolean, default=True)
 
     ships = relationship('Ship', back_populates="owner_relationship")
