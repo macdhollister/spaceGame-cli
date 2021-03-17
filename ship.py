@@ -58,6 +58,8 @@ switcher = {
 
 
 if __name__ == '__main__':
+    if len(argv) == 1:
+        argv.append('-h')
     kwargs = docopt(__doc__)
     kwargs['db'] = db.get_db()
     method = argv[1]
