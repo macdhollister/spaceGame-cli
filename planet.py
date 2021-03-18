@@ -1,9 +1,9 @@
 """
 Usage:
-    map.py generate_map --planets-file=<string>
-    map.py print_map
-    map.py claim --planet-name=<string> --faction-name=<string>
-    map.py build_facility --planet-name=<string> --facility-designation=<string>
+    planet.py generate_planets --planets-file=<string>
+    planet.py print_planets
+    planet.py claim --planet-name=<string> --faction-name=<string>
+    planet.py build_facility --planet-name=<string> --facility-designation=<string>
 
 Options:
     --planets-file=<string>         A json file containing planet information
@@ -23,7 +23,7 @@ from src.utils import db
 from textwrap import dedent
 
 
-def generate_map(args):
+def generate_planets(args):
     with open(args['--planets-file']) as f:
         planets_from_file = json.load(f)['planets']
 
@@ -34,7 +34,7 @@ def generate_map(args):
         print("Could not generate map.")
 
 
-def print_map(args):
+def print_planets(args):
     planet_info = planetCrud.get_planets(args['db'])
 
     size_map = {
@@ -73,8 +73,8 @@ def build_facility(args):
 
 
 switcher = {
-    'generate_map': generate_map,
-    'print_map': print_map,
+    'generate_planets': generate_planets,
+    'print_planets': print_planets,
     'claim': claim_planet,
     'build_facility': build_facility
 }
