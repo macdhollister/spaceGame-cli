@@ -18,6 +18,10 @@ class Planet(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
     size = Column(String)
+
+    # Colony, Outpost, Stronghold, Fortress
+    # TODO fix this to not be a string. Maybe an enum?
+    colony_size = Column(String, default=None)
     resources = Column(Integer)
     owner = Column(String, ForeignKey(Faction.faction_name), nullable=True)
     facilities = Column(PickleType, default=[])

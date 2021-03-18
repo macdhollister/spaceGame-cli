@@ -38,20 +38,25 @@ def print_planets(args):
     planet_info = planetCrud.get_planets(args['db'])
 
     size_map = {
-        's': 'small',
-        'm': 'medium',
-        'l': 'large'
+        's': 'Small',
+        'm': 'Medium',
+        'l': 'Large'
     }
 
     for p in planet_info:
+        col_size_display = ""
+        if p.colony_size and p.owner:
+            col_size_display = "- %s %s" % (p.owner, p.colony_size)
+
         entry = """\
-                %s (%s-%s)
+                %s (%s-%s) %s
                 Connections: %s
                 Facilities: %s
                 """ % (
             p.name,
             size_map[p.size],
             p.resources,
+            col_size_display,
             ', '.join(list(map(lambda c: c.name, p.connections))),
             p.facilities
         )
@@ -62,7 +67,7 @@ def claim_planet(args):
     planet_name = args['--planet-name']
     faction_name = args['--faction-name']
     database = args['db']
-    planetCrud.reassign_planet(database, planet_name, faction_name)
+    planetCrud.claim_planet(database, planet_name, faction_name)
 
 
 def build_facility(args):

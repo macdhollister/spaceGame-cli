@@ -52,11 +52,22 @@ def destroy_facility(db: Session, planet_name: str, facility_type: str):
     pass
 
 
-def reassign_planet(db: Session, planet_name: str, faction_name: str):
+def claim_planet(db: Session, planet_name: str, faction_name: str):
     planet = db.query(models.Planet).filter_by(name=planet_name)
+    if planet.first().owner:
+        reassign_planet(db, planet, faction_name)
+    else:
+        colonize_planet(db, planet, faction_name)
+
+
+def reassign_planet(db: Session, planet, faction_name: str):
     planet.update({'owner': faction_name})
     db.commit()
-    return planet
+
+
+def colonize_planet(db: Session, planet, faction_name: str):
+    planet.update({'owner': faction_name, 'colony_size': 'Colony'})
+    db.commit()
 
 
 def get_planet_by_id(db: Session, planet_id: int):
