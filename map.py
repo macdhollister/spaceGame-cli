@@ -3,11 +3,13 @@ Usage:
     map.py generate_map --planets-file=<string>
     map.py print_map
     map.py claim --planet-name=<string> --faction-name=<string>
+    map.py build_facility --planet-name=<string> --facility-designation=<string>
 
 Options:
-    --planets-file=<string>     A json file containing planet information
-    --planet-name=<string>      The name of a planet
-    --faction-name=<string>     The name of a faction
+    --planets-file=<string>         A json file containing planet information
+    --planet-name=<string>          The name of a planet
+    --faction-name=<string>         The name of a faction
+    --facility-designation=<string> A two character designation for a facility (e.g. BY for basic shipyard)
 """
 
 import json
@@ -17,6 +19,8 @@ from docopt import docopt
 
 from src.crud import planetCrud
 from src.utils import db
+
+from textwrap import dedent
 
 
 def generate_map(args):
@@ -40,13 +44,18 @@ def print_map(args):
     }
 
     for p in planet_info:
-        entry = '%s (%s-%s)\nConnections: %s\n' % (
+        entry = """\
+                %s (%s-%s)
+                Connections: %s
+                Facilities: %s
+                """ % (
             p.name,
             size_map[p.size],
             p.resources,
-            ', '.join(list(map(lambda c: c.name, p.connections)))
+            ', '.join(list(map(lambda c: c.name, p.connections))),
+            p.facilities
         )
-        print(entry)
+        print(dedent(entry))
 
 
 def claim_planet(args):
@@ -56,10 +65,18 @@ def claim_planet(args):
     planetCrud.reassign_planet(database, planet_name, faction_name)
 
 
+def build_facility(args):
+    planet_name = args['--planet-name']
+    facility_designation = args['--facility-designation']
+    database = args['db']
+    planetCrud.build_facility(database, planet_name, facility_designation)
+
+
 switcher = {
     'generate_map': generate_map,
     'print_map': print_map,
-    'claim': claim_planet
+    'claim': claim_planet,
+    'build_facility': build_facility
 }
 
 

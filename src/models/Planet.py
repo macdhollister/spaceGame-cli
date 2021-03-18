@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstraint, PickleType
 from sqlalchemy.orm import relationship
 
 from .Base import Base
@@ -20,6 +20,7 @@ class Planet(Base):
     size = Column(String)
     resources = Column(Integer)
     owner = Column(String, ForeignKey(Faction.faction_name), nullable=True)
+    facilities = Column(PickleType, default=[])
 
     connections = relationship('Planet',
                                secondary=connection,
