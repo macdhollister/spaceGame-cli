@@ -48,8 +48,18 @@ def build_facility(db: Session, planet_name: str, facility_designation: str):
     db.commit()
 
 
-def destroy_facility(db: Session, planet_name: str, facility_type: str):
-    pass
+def destroy_facility(db: Session, planet_name: str, facility_designation: str):
+    facilities_query = db.query(models.Planet).filter_by(name=planet_name)
+    facilities = facilities_query.first().facilities
+
+    for facility in facilities:
+        if facility['facility_designation'] == facility_designation:
+            facilities.remove(facility)
+            facilities_query.update({'facilities': facilities})
+            db.commit()
+            return
+
+    raise ValueError("%s does not have a %s." % (planet_name, facility_designation))
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
