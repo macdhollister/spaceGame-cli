@@ -24,7 +24,7 @@ def get_module_type(module_string):
 
 def validate_module_str(modules_str):
     pattern = re.compile("^([ABCDHMPSWabcdhmpsw][1-9]){1,10}$")  # Example: W1D2M5
-    return re.match(pattern, modules_str)
+    return bool(re.match(pattern, modules_str))
 
 
 def get_modules_from_str(modules_str):
@@ -64,6 +64,9 @@ def move_ship(db: Session, ship_id: int, destination_name: str):
 
 
 def create_ship(db: Session, ship: schemas.ShipCreate):
+    if ship.modules == "COLONY":
+        return create_colony_ship(db, ship)
+
     if not validate_module_str(ship.modules):
         raise ValueError("The modules string is invalid. Must match the regex ^([ABCDHMPSW][1-9]){1,10}$")
 
@@ -75,6 +78,17 @@ def create_ship(db: Session, ship: schemas.ShipCreate):
     db.add(db_ship)
     db.commit()
     db.refresh(db_ship)
+    return db_ship
+
+
+def create_colony_ship(db: Session, ship: schemas.ShipCreate):
+    db_ship = models.Ship(
+        owner=ship.owner,
+        modules="COLONY",
+        location=ship.location
+    )
+    db.add(db_ship)
+    db.commit()
     return db_ship
 
 
