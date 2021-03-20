@@ -4,6 +4,7 @@ Usage:
     ship.py destroy --ship-id=<integer>
     ship.py damage --ship-id=<integer> [--damage=<integer>]
     ship.py restore --ship-id=<integer>
+    ship.py restore_all
     ship.py move --ship-id=<integer> --destination=<string>
 
 Options:
@@ -68,12 +69,19 @@ def restore_ship(args):
     shipCrud.restore_ship_hp(database, ship_id)
 
 
+def restore_all(args):
+    database = args['db']
+
+    shipCrud.restore_all(database)
+
+
 switcher = {
     'create': create_ship,
     'destroy': destroy_ship,
     'move': move_ship,
     'damage': damage_ship,
-    'restore': restore_ship
+    'restore': restore_ship,
+    'restore_all': restore_all
 }
 
 
