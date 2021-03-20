@@ -96,9 +96,26 @@ def create_ship_from_dict(db: Session, ship):
     create_ship(db, schemas.ShipCreate.parse_obj(ship))
 
 
+def restore_ship_hp(db: Session, ship_id: int):
+    max_hp = get_ship_by_id(db, ship_id).max_hp
+    db.query(models.Ship).filter_by(id=ship_id).update({'hit_points': max_hp})
+    db.commit()
+
+
+def damage_ship(db: Session, ship_id: int, damage: int):
+    ship_to_damage = get_ship_by_id(db, ship_id)
+    damaged_hp = ship_to_damage.hit_points - damage
+
+    if damaged_hp <= 0:
+        destroy_ship(db, ship_id)
+    else:
+        db.query(models.Ship).filter_by(id=ship_id).update({'hit_points': damaged_hp})
+        db.commit()
+
+
 def destroy_ship(db: Session, ship_id: int):
     ship_to_delete = get_ship_by_id(db, ship_id)
 
-    models.Ship.filter_by(id=ship_id).delete()
+    db.query(models.Ship).filter_by(id=ship_id).delete()
     db.commit()
     return ship_to_delete

@@ -2,6 +2,8 @@
 Usage:
     ship.py create --planet=<string> --faction=<string> --modules=<string>
     ship.py destroy --ship-id=<integer>
+    ship.py damage --ship-id=<integer> [--damage=<integer>]
+    ship.py restore --ship-id=<integer>
     ship.py move --ship-id=<integer> --destination=<string>
 
 Options:
@@ -10,6 +12,7 @@ Options:
     --modules=<string>      The modules on the ship. Should match the regex ^([ABCDHMPSWabcdhmpsw][1-9]){1,10}$
     --ship-id=<integer>     The unique identifier for a ship
     --destination=<string>  The location a ship is to be moved
+    --damage=<integer>      (optional) Amount of damage to inflict to a ship. Defaults to 1 damage.
 """
 
 from sys import argv
@@ -50,10 +53,27 @@ def move_ship(args):
     shipCrud.move_ship(database, ship_id, destination)
 
 
+def damage_ship(args):
+    ship_id = args['--ship-id']
+    damage = args['--damage'] if args['--damage'] is not None else 1
+    database = args['db']
+
+    shipCrud.damage_ship(database, ship_id, int(damage))
+
+
+def restore_ship(args):
+    ship_id = args['--ship-id']
+    database = args['db']
+
+    shipCrud.restore_ship_hp(database, ship_id)
+
+
 switcher = {
     'create': create_ship,
     'destroy': destroy_ship,
-    'move': move_ship
+    'move': move_ship,
+    'damage': damage_ship,
+    'restore': restore_ship
 }
 
 
