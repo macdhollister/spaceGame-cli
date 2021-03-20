@@ -31,6 +31,8 @@ Commands:
   An example planets file can be found below.
 * `print_planets`  
   Prints out a report of all planets in the map including names, sizes, resource values, colony sizes / owner (if there is one), connections, and facilities.
+* `print_single_planet`  
+  Prints out a report of a designated planet.
 * `claim`  
   Assigns a planet to a player. This method can be used regardless of if the planet is already owned by another player.
 * `build_facility`  

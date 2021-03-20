@@ -17,6 +17,14 @@ def count_facility_type(facility_list, facility_designation):
     return count
 
 
+def get_planet_by_id(db: Session, planet_id: int):
+    return db.query(models.Planet).filter_by(id=planet_id).first()
+
+
+def get_planet_by_name(db: Session, planet_name: str):
+    return db.query(models.Planet).filter_by(name=planet_name).first()
+
+
 def build_facility(db: Session, planet_name: str, facility_designation: str):
     facilities_query = db.query(models.Planet).filter_by(name=planet_name)
     facilities = facilities_query.first().facilities
@@ -78,14 +86,6 @@ def reassign_planet(db: Session, planet, faction_name: str):
 def colonize_planet(db: Session, planet, faction_name: str):
     planet.update({'owner': faction_name, 'colony_size': 'Colony'})
     db.commit()
-
-
-def get_planet_by_id(db: Session, planet_id: int):
-    return db.query(models.Planet).filter_by(id=planet_id).first()
-
-
-def get_planet_by_name(db: Session, planet_name: str):
-    return db.query(models.Planet).filter_by(name=planet_name).first()
 
 
 def create_planet(db: Session, planet: schemas.PlanetCreate):

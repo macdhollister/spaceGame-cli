@@ -2,6 +2,7 @@
 Usage:
     planet.py generate_planets [--planets-file=<string>]
     planet.py print_planets
+    planet.py print_single_planet --planet-name=<string>
     planet.py claim --planet-name=<string> --faction-name=<string>
     planet.py build_facility --planet-name=<string> --facility-designation=<string>
     planet.py destroy_facility --planet-name=<string> --facility-designation=<string>
@@ -24,6 +25,49 @@ from src.utils import db
 from textwrap import dedent
 
 
+def print_planet(planet):
+    size_map = {
+        's': 'Small',
+        'm': 'Medium',
+        'l': 'Large'
+    }
+
+    col_size_display = ""
+    if planet.colony_size and planet.owner:
+        col_size_display = "- %s %s" % (planet.owner, planet.colony_size)
+
+    entry = f"""\
+            %s (%s-%s) %s
+            Connections: %s
+            Facilities: %s
+            """ % (
+        planet.name,
+        size_map[planet.size],
+        planet.resources,
+        col_size_display,
+        ', '.join(list(map(lambda c: c.name, planet.connections))),
+        planet.facilities
+    )
+    print(dedent(entry))
+
+
+def print_single_planet(args):
+    planet_name = args['--planet-name']
+    database = args['db']
+
+    planet_info = planetCrud.get_planet_by_name(database, planet_name)
+    print_planet(planet_info)
+
+
+def print_planets(args):
+    database = args['db']
+
+    planet_info = planetCrud.get_planets(database)
+
+    for p in planet_info:
+        print_planet(p)
+
+
 def generate_planets(args):
     if args['--planets-file'] is None:
         args['--planets-file'] = "game_resources/planets.json"
@@ -36,35 +80,6 @@ def generate_planets(args):
     # TODO better exception handling
     except Exception:
         print("Could not generate map.")
-
-
-def print_planets(args):
-    planet_info = planetCrud.get_planets(args['db'])
-
-    size_map = {
-        's': 'Small',
-        'm': 'Medium',
-        'l': 'Large'
-    }
-
-    for p in planet_info:
-        col_size_display = ""
-        if p.colony_size and p.owner:
-            col_size_display = "- %s %s" % (p.owner, p.colony_size)
-
-        entry = """\
-                %s (%s-%s) %s
-                Connections: %s
-                Facilities: %s
-                """ % (
-            p.name,
-            size_map[p.size],
-            p.resources,
-            col_size_display,
-            ', '.join(list(map(lambda c: c.name, p.connections))),
-            p.facilities
-        )
-        print(dedent(entry))
 
 
 def claim_planet(args):
@@ -91,6 +106,7 @@ def build_facility(args):
 switcher = {
     'generate_planets': generate_planets,
     'print_planets': print_planets,
+    'print_single_planet': print_single_planet,
     'claim': claim_planet,
     'build_facility': build_facility,
     'destroy_facility': destroy_facility
