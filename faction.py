@@ -21,6 +21,8 @@ from docopt import docopt
 from src.crud import factionCrud
 from src.utils import db
 
+from textwrap import dedent
+
 
 def generate_factions(args):
     if args['--factions-file'] is None:
@@ -35,20 +37,36 @@ def generate_factions(args):
     factionCrud.build_factions(database, factions_from_file)
 
 
+def print_single_faction(f):
+    entry = f"""\
+            ------------------------------
+            {f.faction_name}
+            ------------------------------
+            MP: {f.mp}
+            RP: {f.rp}
+            LP: {f.lp}
+            Research:
+                Armor Plating: {f.research['armor_plating']}
+                Command Bridge: {f.research['command_bridge']}
+                ECM Suite: {f.research['ecm_suite']}
+                Warp Drive: {f.research['warp_drive']}
+                Hangar Bay: {f.research['hangar_bay']}
+                Marine Barracks: {f.research['marine_barracks']}
+                Point Defense Battery: {f.research['point_defense_battery']}
+                Sensor Array: {f.research['sensor_array']}
+                Heavy Weapons Bay: {f.research['heavy_weapons_bay']}
+            """
+
+    print(dedent(entry))
+
+
 def print_factions(args):
     database = args['db']
 
     faction_info = factionCrud.get_factions(database)
 
     for f in faction_info:
-        entry = '%s\nmp: %s\nrp: %s\nlp: %s\nresearch: %s\n' % (
-            f.faction_name,
-            f.mp,
-            f.rp,
-            f.lp,
-            f.research
-        )
-        print(entry)
+        print_single_faction(f)
 
 
 def update_research(args):
