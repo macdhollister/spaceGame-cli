@@ -1,6 +1,6 @@
 """
 Usage:
-    planet.py generate_planets --planets-file=<string>
+    planet.py generate_planets [--planets-file=<string>]
     planet.py print_planets
     planet.py claim --planet-name=<string> --faction-name=<string>
     planet.py build_facility --planet-name=<string> --facility-designation=<string>
@@ -25,6 +25,9 @@ from textwrap import dedent
 
 
 def generate_planets(args):
+    if args['--planets-file'] is None:
+        args['--planets-file'] = "game_resources/planets.json"
+
     with open(args['--planets-file']) as f:
         planets_from_file = json.load(f)['planets']
 

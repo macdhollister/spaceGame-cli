@@ -1,0 +1,10 @@
+{
+  "factions": [
+    {
+      "faction_name": "faction_1"
+    },
+    {
+      "faction_name": "faction_2"
+    }
+  ]
+}

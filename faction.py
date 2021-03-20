@@ -1,6 +1,6 @@
 """
 Usage:
-    faction.py generate_factions --factions-file=<string>
+    faction.py generate_factions [--factions-file=<string>]
     faction.py update_research --faction-name=<string> --module-name=<string> --tech-level=<integer>
     faction.py print_factions
 
@@ -23,6 +23,9 @@ from src.utils import db
 
 
 def generate_factions(args):
+    if args['--factions-file'] is None:
+        args['--factions-file'] = "game_resources/factions.json"
+
     factions_file = args['--factions-file']
     database = args['db']
 
@@ -38,7 +41,7 @@ def print_factions(args):
     faction_info = factionCrud.get_factions(database)
 
     for f in faction_info:
-        entry = '%s\nmp: %s\nrp: %s\nlp: %s\nresearch: %s' % (
+        entry = '%s\nmp: %s\nrp: %s\nlp: %s\nresearch: %s\n' % (
             f.faction_name,
             f.mp,
             f.rp,

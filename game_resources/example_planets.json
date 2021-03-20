@@ -1,0 +1,28 @@
+{
+  "planets": [
+    {
+      "name": "planet_a",
+      "size": "s",
+      "resources": 4,
+      "connections": ["planet_b", "planet_c"]
+    },
+    {
+      "name": "planet_b",
+      "size": "m",
+      "resources": 3,
+      "connections": ["planet_a", "planet_c"]
+    },
+    {
+      "name": "planet_c",
+      "size": "l",
+      "resources": 2,
+      "connections": ["planet_a", "planet_b", "planet_d"]
+    },
+    {
+      "name": "planet_d",
+      "size": "m",
+      "resources": 4,
+      "connections": ["planet_c", "planet_a"]
+    }
+  ]
+}
