@@ -6,6 +6,7 @@ Usage:
     ship.py restore --ship-id=<integer>
     ship.py restore_all
     ship.py move --ship-id=<integer> --destination=<string>
+    ship.py get_all
 
 Options:
     --planet=<string>       The planet on which to create the ship
@@ -22,6 +23,8 @@ from docopt import docopt
 
 from src.crud import shipCrud
 from src.utils import db
+
+from textwrap import dedent
 
 
 def create_ship(args):
@@ -75,13 +78,31 @@ def restore_all(args):
     shipCrud.restore_all(database)
 
 
+def get_all(args):
+    database = args['db']
+
+    all_ships = shipCrud.get_ships(database)
+    for ship in all_ships:
+        display = f"""\
+                id: {ship.id}
+                owner: {ship.owner}
+                modules: {ship.modules}
+                location: {ship.location}
+                stealth level: {ship.stealth_level}
+                detection level: {ship.detection_level}
+                
+                """
+        print(dedent(display))
+
+
 switcher = {
     'create': create_ship,
     'destroy': destroy_ship,
     'move': move_ship,
     'damage': damage_ship,
     'restore': restore_ship,
-    'restore_all': restore_all
+    'restore_all': restore_all,
+    'get_all': get_all
 }
 
 

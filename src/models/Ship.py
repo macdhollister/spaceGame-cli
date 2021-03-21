@@ -43,4 +43,4 @@ class Ship(Base):
     location_relationship = relationship(Planet, back_populates='ships')
 
     def __repr__(self):
-        return f'{{"id": "{self.id}","owner": "{self.owner}","modules": "{self.modules}"}}'
+        return f'Ship<id: {self.id}>'
