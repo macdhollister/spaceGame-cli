@@ -15,7 +15,11 @@ def get_planet_by_id(db: Session, planet_id: int):
 
 
 def get_planet_by_name(db: Session, planet_name: str):
-    return db.query(models.Planet).filter_by(name=planet_name).first()
+    return query_planet_by_name(db, planet_name).first()
+
+
+def query_planet_by_name(db: Session, planet_name: str):
+    return db.query(models.Planet).filter_by(name=planet_name)
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
@@ -76,9 +80,12 @@ def planet_visible_by_faction(db: Session, planet_name: str, faction_name: str):
 
 # ---------- FACILITIES ----------
 
+def get_planet_facilities(db: Session, planet_name: str):
+    return get_planet_by_name(db, planet_name).facilities
+
+
 def build_facility(db: Session, planet_name: str, facility_designation: str):
-    facilities_query = db.query(models.Planet).filter_by(name=planet_name)
-    facilities = facilities_query.first().facilities
+    facilities = get_planet_facilities(db, planet_name)
 
     num_basic_shields = count_facility_type(facilities, "BP")
     num_intermediate_shields = count_facility_type(facilities, "IP")
@@ -103,7 +110,7 @@ def build_facility(db: Session, planet_name: str, facility_designation: str):
 
             facility['hit_points'] += hp_to_add
 
-    facilities_query.update({'facilities': facilities})
+    query_planet_by_name(db, planet_name).update({'facilities': facilities})
     db.commit()
 
 
