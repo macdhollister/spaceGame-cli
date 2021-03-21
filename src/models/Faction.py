@@ -5,7 +5,7 @@ from .Base import Base
 
 
 class Faction(Base):
-    __tablename__ = "factions"
+    __tablename__ = 'Faction'
 
     id = Column(Integer, primary_key=True, index=True)
     faction_name = Column(String, unique=True, index=True)

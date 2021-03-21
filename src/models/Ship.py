@@ -27,7 +27,7 @@ def get_detection_level(context):
 
 
 class Ship(Base):
-    __tablename__ = "ships"
+    __tablename__ = 'Ship'
 
     id = Column(Integer, primary_key=True, index=True)
     modules = Column(String)

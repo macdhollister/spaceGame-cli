@@ -13,7 +13,7 @@ connection = Table(
 
 
 class Planet(Base):
-    __tablename__ = 'planets'
+    __tablename__ = 'Planet'
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
