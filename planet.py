@@ -19,13 +19,13 @@ from sys import argv
 
 from docopt import docopt
 
-from src.crud import planetCrud
+from src.crud import planetCrud, shipCrud
 from src.utils import db
 
 from textwrap import dedent
 
 
-def print_planet(planet):
+def print_planet(database, planet):
     size_map = {
         's': 'Small',
         'm': 'Medium',
@@ -36,18 +36,14 @@ def print_planet(planet):
     if planet.colony_size and planet.owner:
         col_size_display = "- %s %s" % (planet.owner, planet.colony_size)
 
+    ships_on_planet = shipCrud.get_ships_on_planet(database, planet.name)
+
     entry = f"""\
-            %s (%s-%s) %s
-            Connections: %s
-            Facilities: %s
-            """ % (
-        planet.name,
-        size_map[planet.size],
-        planet.resources,
-        col_size_display,
-        ', '.join(list(map(lambda c: c.name, planet.connections))),
-        planet.facilities
-    )
+            {planet.name} ({size_map[planet.size]}-{planet.resources}) {col_size_display}
+            Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
+            Facilities: {planet.facilities}
+            Ships in orbit: {ships_on_planet}
+            """
     print(dedent(entry))
 
 
@@ -56,7 +52,7 @@ def print_single_planet(args):
     database = args['db']
 
     planet_info = planetCrud.get_planet_by_name(database, planet_name)
-    print_planet(planet_info)
+    print_planet(database, planet_info)
 
 
 def print_planets(args):
@@ -65,7 +61,7 @@ def print_planets(args):
     planet_info = planetCrud.get_planets(database)
 
     for p in planet_info:
-        print_planet(p)
+        print_planet(database, p)
 
 
 def generate_planets(args):

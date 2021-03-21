@@ -52,6 +52,14 @@ def get_modules_from_str(modules_str):
     return modules
 
 
+def get_ships(db: Session):
+    return db.query(models.Ship).all()
+
+
+def get_ships_on_planet(db: Session, planet_name: str):
+    return db.query(models.Ship).filter_by(location=planet_name).all()
+
+
 def get_ship_by_id(db: Session, ship_id: int):
     return db.query(models.Ship).filter_by(id=ship_id).first()
 
