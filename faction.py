@@ -2,6 +2,7 @@
 Usage:
     faction.py generate_factions [--factions-file=<string>]
     faction.py update_research --faction-name=<string> --module-name=<string> --tech-level=<integer>
+    faction.py update_resource --faction-name=<string> --resource-name=<string> --new-total=<integer>
     faction.py print_factions
 
 Options:
@@ -11,6 +12,8 @@ Options:
                                     armor_plating, command_bridge, ecm_suite, warp_drive, hangar_bay,
                                     marine_barracks, point_defense_battery, sensor_array, heavy_weapons_bay
     --tech-level=<integer>          The desired tech level to set for a module
+    --resource-name=<string>        The name of a player's resource to update (mp, lp, or rp)
+    --new-total=<integer>           The new amount of a resource a player should have
 """
 
 import json
@@ -78,10 +81,20 @@ def update_research(args):
     factionCrud.update_research(database, faction_name, module_name, tech_level)
 
 
+def update_resource(args):
+    faction_name = args['--faction-name']
+    resource_name = args['--resource-name']
+    new_total = int(args['--new-total'])
+    database = args['db']
+
+    factionCrud.update_resource(database, faction_name, resource_name, new_total)
+
+
 switcher = {
     'generate_factions': generate_factions,
     'print_factions': print_factions,
-    'update_research': update_research
+    'update_research': update_research,
+    'update_resource': update_resource
 }
 
 

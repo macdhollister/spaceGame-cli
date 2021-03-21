@@ -1,5 +1,3 @@
-import json
-
 from sqlalchemy.orm import Session
 
 from src import models
@@ -7,13 +5,24 @@ from src import schemas
 
 
 def update_research(db: Session, faction_name: str, module_name: str, tech_level: int):
-    faction = db.query(models.Faction).filter_by(faction_name=faction_name)
-    faction_research = faction.first().research
+    faction_query = query_faction_by_name(db, faction_name)
+    faction_research = faction_query.first().research
     faction_research[module_name] = tech_level
 
-    faction.update({'research': faction_research})
+    faction_query.update({'research': faction_research})
     db.commit()
-    return faction
+    return faction_query
+
+
+def update_resource(db: Session, faction_name: str, resource: str, new_total: int):
+    valid_resources = ['mp', 'lp', 'rp']
+    if resource.lower() not in valid_resources:
+        raise ValueError("Valid resources are mp, lp, and rp")
+
+    faction_query = query_faction_by_name(db, faction_name)
+
+    faction_query.update({resource: new_total})
+    db.commit()
 
 
 def get_faction(db: Session, faction_id: int):
@@ -31,8 +40,8 @@ def get_faction(db: Session, faction_id: int):
     }
 
 
-def get_faction_by_name(db: Session, faction: str):
-    return db.query(models.Faction).filter_by(faction_name=faction).first()
+def query_faction_by_name(db: Session, faction_name: str):
+    return db.query(models.Faction).filter_by(faction_name=faction_name)
 
 
 def get_factions(db: Session):
