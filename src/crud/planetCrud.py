@@ -133,3 +133,12 @@ def count_facility_type(facility_list, facility_designation):
 def get_facilities(db: Session, planet_name: str):
     planet = get_planet_by_name(db, planet_name)
     return planet.facilities
+
+
+def has_facilities(db: Session, planet_name: str, facilities_set: set):
+    """Takes a set of facility designations and returns a boolean
+    depending on if the planet has any of those facilities"""
+    planet = get_planet_by_name(db, planet_name)
+    return len(
+        facilities_set & set(map(lambda fac: fac['facility_designation'], planet.facilities))
+    ) > 0

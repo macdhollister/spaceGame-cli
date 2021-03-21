@@ -1,8 +1,8 @@
 """
 Usage:
     planet.py generate_planets [--planets-file=<string>]
-    planet.py print_planets
-    planet.py print_single_planet --planet-name=<string>
+    planet.py print_planets [--faction-name=<string>]
+    planet.py print_single_planet --planet-name=<string> [--faction-name=<string>]
     planet.py claim --planet-name=<string> --faction-name=<string>
     planet.py build_facility --planet-name=<string> --facility-designation=<string>
     planet.py destroy_facility --planet-name=<string> --facility-designation=<string>
@@ -25,7 +25,7 @@ from src.utils import db
 from textwrap import dedent
 
 
-def print_planet(database, planet):
+def print_planet(database, planet, faction_name=None):
     size_map = {
         's': 'Small',
         'm': 'Medium',
@@ -36,7 +36,10 @@ def print_planet(database, planet):
     if planet.colony_size and planet.owner:
         col_size_display = "- %s %s" % (planet.owner, planet.colony_size)
 
-    ships_on_planet = shipCrud.get_ships_on_planet(database, planet.name)
+    ships_on_planet = \
+        shipCrud.get_ships_on_planet(database, planet.name) \
+        if faction_name is None \
+        else shipCrud.get_visible_ships_on_planet(database, planet.name, faction_name)
 
     entry = f"""\
             {planet.name} ({size_map[planet.size]}-{planet.resources}) {col_size_display}
@@ -49,19 +52,21 @@ def print_planet(database, planet):
 
 def print_single_planet(args):
     planet_name = args['--planet-name']
+    faction_name = args['--faction-name']
     database = args['db']
 
     planet_info = planetCrud.get_planet_by_name(database, planet_name)
-    print_planet(database, planet_info)
+    print_planet(database, planet_info, faction_name)
 
 
 def print_planets(args):
     database = args['db']
+    faction_name = args['--faction-name']
 
     planet_info = planetCrud.get_planets(database)
 
     for p in planet_info:
-        print_planet(database, p)
+        print_planet(database, p, faction_name)
 
 
 def generate_planets(args):

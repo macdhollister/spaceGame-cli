@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from src import models
 from src import schemas
 
+from src.crud import planetCrud
+
 import re
 
 
@@ -54,6 +56,37 @@ def get_modules_from_str(modules_str):
 
 def get_ships(db: Session):
     return db.query(models.Ship).all()
+
+
+def get_visible_ships_on_planet(db: Session, planet_name: str, faction_name: str):
+    # TODO clean up this function -- separate out utility methods
+    """Gets all ships in orbit of a planet which are visible to a faction"""
+    # Maximum stealth level is 10 (10 ECM modules), so all
+    # ships are detected if detection level is 11 or above
+
+    effective_detection_level = 0
+    visible_ships = []
+
+    planet = planetCrud.get_planet_by_name(db, planet_name)
+    ships_on_planet = get_ships_on_planet(db, planet_name)
+    ships_owned_by_faction = list(filter(lambda ship: ship.owner == faction_name, ships_on_planet))
+
+    if len(ships_owned_by_faction) > 0:
+        effective_detection_level += max(list(map(lambda ship: ship.detection_level, ships_owned_by_faction)))
+
+    planet_has_radar = planetCrud.has_facilities(db, planet_name, {'BR', 'IR', 'AR'})
+
+    if planet.owner == faction_name and planet_has_radar:
+        effective_detection_level += 11
+    for p in planet.connections:
+        if p.owner == faction_name and planetCrud.has_facilities(db, p.name, {'AR'}):
+            effective_detection_level += 11
+
+    for ship in ships_on_planet:
+        if ship.owner == faction_name or ship.stealth_level <= effective_detection_level:
+            visible_ships.append(ship)
+
+    return visible_ships
 
 
 def get_ships_on_planet(db: Session, planet_name: str):
