@@ -6,8 +6,8 @@ from .Faction import Faction
 
 connection = Table(
     'PlanetConnection', Base.metadata,
-    Column('planet_a_id', Integer, ForeignKey('planets.id'), index=True),
-    Column('planet_b_id', Integer, ForeignKey('planets.id')),
+    Column('planet_a_id', Integer, ForeignKey('Planet.id'), index=True),
+    Column('planet_b_id', Integer, ForeignKey('Planet.id')),
     UniqueConstraint('planet_a_id', 'planet_b_id', name='unique_connections')
 )
 
@@ -24,7 +24,6 @@ class Planet(Base):
     colony_size = Column(String, default=None)
     resources = Column(Integer)
     owner = Column(String, ForeignKey(Faction.faction_name), nullable=True)
-    facilities = Column(PickleType, default=[])
 
     connections = relationship('Planet',
                                secondary=connection,
@@ -32,6 +31,7 @@ class Planet(Base):
                                secondaryjoin=id == connection.c.planet_b_id
                                )
     ships = relationship('Ship', back_populates="location_relationship")
+    facilities = relationship('Facility', back_populates="planet_relationship")
 
     owner_relationship = relationship(Faction, back_populates='planets')
 

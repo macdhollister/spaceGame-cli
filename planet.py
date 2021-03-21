@@ -4,14 +4,11 @@ Usage:
     planet.py print_planets [--faction-name=<string>]
     planet.py print_single_planet --planet-name=<string> [--faction-name=<string>]
     planet.py claim --planet-name=<string> --faction-name=<string>
-    planet.py build_facility --planet-name=<string> --facility-designation=<string>
-    planet.py destroy_facility --planet-name=<string> --facility-designation=<string>
 
 Options:
     --planets-file=<string>         A json file containing planet information
     --planet-name=<string>          The name of a planet
     --faction-name=<string>         The name of a faction
-    --facility-designation=<string> A two character designation for a facility (e.g. BY for basic shipyard)
 """
 
 import json
@@ -90,27 +87,11 @@ def claim_planet(args):
     planetCrud.claim_planet(database, planet_name, faction_name)
 
 
-def destroy_facility(args):
-    planet_name = args['--planet-name']
-    facility_designation = args['--facility-designation']
-    database = args['db']
-    planetCrud.destroy_facility(database, planet_name, facility_designation)
-
-
-def build_facility(args):
-    planet_name = args['--planet-name']
-    facility_designation = args['--facility-designation']
-    database = args['db']
-    planetCrud.build_facility(database, planet_name, facility_designation)
-
-
 switcher = {
     'generate_planets': generate_planets,
     'print_planets': print_planets,
     'print_single_planet': print_single_planet,
-    'claim': claim_planet,
-    'build_facility': build_facility,
-    'destroy_facility': destroy_facility
+    'claim': claim_planet
 }
 
 

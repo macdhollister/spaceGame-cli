@@ -35,10 +35,6 @@ Commands:
   Prints out a report of a designated planet.
 * `claim`  
   Assigns a planet to a player. This method can be used regardless of if the planet is already owned by another player.
-* `build_facility`  
-  Builds a facility on the planet. Facility names should follow the convention of `<level><type>` for example `BY` or `AF`.
-* `destroy_facility`  
-  Destroys a facility with a particular type on a designated planet.
   
 
 ## <u>faction.py</u>
@@ -47,12 +43,12 @@ This script manages all factions, including research and resources.
 Commands:
 * `generate_factions`  
   Takes in a "factions file" as with the `generate_planets` method of `planet.py`. An example is shown below.
-
-* `print_factions`  
-  Prints out all factions including faction names, resources (mp, rp, lp), and research achieved for each module.
-
 * `update_research`  
   Updates a faction's research in a certain ship module to a designated tech level.
+* `update_resource`  
+  Updates a faction's resource count (mp, rp, or lp) to a given new total.
+* `print_factions`  
+  Prints out all factions including faction names, resources (mp, rp, lp), and research achieved for each module.
   
   
 ## <u>ship.py</u>
@@ -76,6 +72,20 @@ Commands:
   
 * `move`  
   Moves a designated ship to a designated planet.
+  
+* `get_all`
+  Prints out all ships.
+  
+
+## <u>facility.py</u>
+Manages facilities
+
+* `create`  
+  Creates a basic facility on the given planet with the given type. Type can be the full name (underscored) or abbreviated.
+  For example, `--type "planetary_shields"` or `--type "p"` are both valid. Type is case-insensitive.
+
+* `upgrade`  
+  Upgrades a facility from basic to intermediate or intermediate to advanced. Throws an error if an advanced facility is upgraded.
 
 ## Example JSON files
 Example files have been provided in the `game_resources` directory of this repo, which has been added to the `.gitignore` for your convenience.
