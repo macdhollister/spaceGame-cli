@@ -3,15 +3,26 @@ from sqlalchemy.orm import Session
 from src import models, schemas
 from src.utils.FacilityEnums import FacilityType, FacilityLevel
 
+from src.crud import planetCrud
+
 
 def get_facilities(db: Session):
     return db.query(models.Facility).all()
 
 
+def create_facility_from_dict(db: Session, facility):
+    db_facility = schemas.FacilityCreate.parse_obj(facility)
+    create_facility(db, db_facility)
+
+
 def create_facility(db: Session, facility: schemas.FacilityCreate):
+    planet_owner = planetCrud.get_planet_by_name(db, facility.planet).owner
+    if planet_owner is None:
+        raise ValueError("Cannot create facility on un-claimed planet.")
+
     db_facility = models.Facility(
-        facility_type=facility['facility_type'],
-        planet=facility['planet']
+        facility_type=facility.facility_type,
+        planet=facility.planet
     )
     db.add(db_facility)
     db.commit()

@@ -48,7 +48,7 @@ def create_facility(args):
         'facility_type': facility_type
     }
 
-    facilityCrud.create_facility(database, facility)
+    facilityCrud.create_facility_from_dict(database, facility)
 
 
 def upgrade_facility(args):
