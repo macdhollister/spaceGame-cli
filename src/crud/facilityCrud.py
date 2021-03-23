@@ -28,10 +28,15 @@ def create_facility(db: Session, facility: schemas.FacilityCreate):
     db.commit()
 
 
-def upgrade_facility(db: Session, facility_id: int):
-    facility_query = db.query(models.Facility).filter_by(id=facility_id)
+def upgrade_facility(db: Session, planet_name: str, level: FacilityLevel, facility_type: FacilityType):
+    facility_query = db.query(models.Facility).filter_by(
+        planet=planet_name,
+        level=level,
+        facility_type=facility_type
+    )
     facility = facility_query.first()
     facility_level = facility.level
+    facility_id = facility.id
 
     if facility_level == FacilityLevel.BASIC:
         facility.level = FacilityLevel.INTERMEDIATE
@@ -40,4 +45,5 @@ def upgrade_facility(db: Session, facility_id: int):
     else:
         raise ValueError("Only basic and intermediate facilities can be upgraded.")
 
-    facility_query.update(level=facility.level)
+    db.query(models.Facility).filter_by(id=facility_id).update({'level': facility.level})
+    db.commit()
