@@ -1,5 +1,6 @@
 """
 Usage:
+    facility.py get_facilities --planet=<string>
     facility.py create --planet=<string> --type=<string>
     facility.py upgrade --planet=<string> --type=<string> --level=<string>
     facility.py upgrade --planet=<string> --facility-designation=<string>
@@ -17,42 +18,38 @@ from docopt import docopt
 
 from src.crud import facilityCrud
 from src.utils import db
-from src.utils.FacilityEnums import FacilityType, FacilityLevel
+from src.utils.FacilityEnums import type_to_enum, level_to_enum, type_to_str, level_to_str
 
 from textwrap import dedent
 
 
-facilities_types_str_to_enum = {
-    "factory": FacilityType.FACTORY,
-    "f": FacilityType.FACTORY,
-    "laboratory": FacilityType.LABORATORY,
-    "l": FacilityType.LABORATORY,
-    "shipyard": FacilityType.SHIPYARD,
-    "y": FacilityType.SHIPYARD,
-    "radar": FacilityType.RADAR,
-    "r": FacilityType.RADAR,
-    "defense_grid": FacilityType.DEFENSE_GRID,
-    "d": FacilityType.DEFENSE_GRID,
-    "fleet_hq": FacilityType.FLEET_HQ,
-    "q": FacilityType.FLEET_HQ,
-    "planetary_shields": FacilityType.PLANETARY_SHIELDS,
-    "p": FacilityType.PLANETARY_SHIELDS
-}
+def get_facilities(args):
+    database = args['db']
+    planet_name = args['--planet']
 
-facilities_levels_str_to_enum = {
-    "basic": FacilityLevel.BASIC,
-    "b": FacilityLevel.BASIC,
-    "intermediate": FacilityLevel.INTERMEDIATE,
-    "i": FacilityLevel.INTERMEDIATE,
-    "advanced": FacilityLevel.ADVANCED,
-    "a": FacilityLevel.ADVANCED
-}
+    facilities = facilityCrud.get_facilities_on_planet(database, planet_name)
+
+    print(dedent(f"""\
+                 -------------------------------
+                 Facilities on {planet_name}
+                 -------------------------------\
+                 """))
+
+    for facility in facilities:
+        entry = f"""\
+                id: {facility.id}
+                level: {level_to_str.get(facility.level)}
+                type: {type_to_str.get(facility.facility_type)}
+                HP: {1 + facility.shields}
+                """
+
+        print(dedent(entry))
 
 
 def create_facility(args):
     database = args['db']
     planet_name = args['--planet']
-    facility_type = facilities_types_str_to_enum.get(args['--type'].lower())
+    facility_type = type_to_enum.get(args['--type'].lower())
 
     facility = {
         'planet': planet_name,
@@ -74,15 +71,16 @@ def upgrade_facility(args):
         level = args['--level']
         facility_type = args['--type']
 
-    level = facilities_levels_str_to_enum.get(level)
-    facility_type = facilities_types_str_to_enum.get(facility_type)
+    level = level_to_enum.get(level)
+    facility_type = type_to_enum.get(facility_type)
 
     facilityCrud.upgrade_facility(database, planet, level, facility_type)
 
 
 switcher = {
     'create': create_facility,
-    'upgrade': upgrade_facility
+    'upgrade': upgrade_facility,
+    'get_facilities': get_facilities
 }
 
 

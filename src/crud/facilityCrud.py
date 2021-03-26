@@ -10,6 +10,10 @@ def get_facilities(db: Session):
     return db.query(models.Facility).all()
 
 
+def get_facilities_on_planet(db: Session, planet_name: str):
+    return db.query(models.Facility).filter_by(planet=planet_name).all()
+
+
 def create_facility_from_dict(db: Session, facility):
     db_facility = schemas.FacilityCreate.parse_obj(facility)
     create_facility(db, db_facility)
