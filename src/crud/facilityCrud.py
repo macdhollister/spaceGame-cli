@@ -5,6 +5,12 @@ from src.utils.FacilityEnums import FacilityType, FacilityLevel
 
 from src.crud import planetCrud
 
+import copy
+
+
+def get_facility_by_id(db: Session, facility_id: int):
+    return db.query(models.Facility).filter_by(id=facility_id).first()
+
 
 def get_facilities(db: Session):
     return db.query(models.Facility).all()
@@ -32,15 +38,10 @@ def create_facility(db: Session, facility: schemas.FacilityCreate):
     db.commit()
 
 
-def upgrade_facility(db: Session, planet_name: str, level: FacilityLevel, facility_type: FacilityType):
-    facility_query = db.query(models.Facility).filter_by(
-        planet=planet_name,
-        level=level,
-        facility_type=facility_type
-    )
+def upgrade_facility(db: Session, facility_id: int):
+    facility_query = db.query(models.Facility).filter_by(id=facility_id)
     facility = facility_query.first()
     facility_level = facility.level
-    facility_id = facility.id
 
     if facility_level == FacilityLevel.BASIC:
         facility.level = FacilityLevel.INTERMEDIATE
@@ -49,5 +50,31 @@ def upgrade_facility(db: Session, planet_name: str, level: FacilityLevel, facili
     else:
         raise ValueError("Only basic and intermediate facilities can be upgraded.")
 
-    db.query(models.Facility).filter_by(id=facility_id).update({'level': facility.level})
+    facility_query.update({'level': facility.level})
     db.commit()
+
+
+def downgrade_facility(db: Session, facility_id: int):
+    facility_query = db.query(models.Facility).filter_by(id=facility_id)
+    facility = facility_query.first()
+    facility_level = facility.level
+
+    if facility_level == FacilityLevel.ADVANCED:
+        facility.level = FacilityLevel.INTERMEDIATE
+    elif facility_level == FacilityLevel.INTERMEDIATE:
+        facility.level = FacilityLevel.BASIC
+    elif facility_level == FacilityLevel.BASIC:
+        facility_to_destroy = destroy_facility(db, facility_id)
+        return print(f'Destroyed facility {facility_id} ({facility_to_destroy} on {facility_to_destroy.planet})')
+
+    facility_query.update({'level': facility.level})
+    db.commit()
+
+
+def destroy_facility(db: Session, facility_id: int):
+    facility_to_delete = get_facility_by_id(db, facility_id)
+    facility_copy = copy.deepcopy(facility_to_delete)
+
+    db.query(models.Facility).filter_by(id=facility_id).delete()
+    db.commit()
+    return facility_copy

@@ -2,14 +2,13 @@
 Usage:
     facility.py get_facilities --planet=<string>
     facility.py create --planet=<string> --type=<string>
-    facility.py upgrade --planet=<string> --type=<string> --level=<string>
-    facility.py upgrade --planet=<string> --facility-designation=<string>
+    facility.py upgrade --facility-id=<integer>
+    facility.py downgrade --facility-id=<integer>
 
 Options:
     --planet=<string>               The name of the planet that the facility is on
     --type=<string>                 A designation (name or abbreviation) of a facility
-    --level=<string>                The level of a facility (basic, intermediate, advanced or abbreviations of those) of a facility
-    --facility-designation=<string> Full abbreviated designation for a facility (e.g. BF or IY)
+    --facility-id=<integer>         The unique identifier for a facility (can be found via get_facilities method)
 """
 
 from sys import argv
@@ -18,7 +17,7 @@ from docopt import docopt
 
 from src.crud import facilityCrud
 from src.utils import db
-from src.utils.FacilityEnums import type_to_enum, level_to_enum, type_to_str, level_to_str
+from src.utils.FacilityEnums import type_to_enum, type_to_str, level_to_str
 
 from textwrap import dedent
 
@@ -61,25 +60,22 @@ def create_facility(args):
 
 def upgrade_facility(args):
     database = args['db']
-    planet = args['--planet']
-    facility_designation = args['--facility-designation']
-    if facility_designation is not None:
-        facility_split = list(facility_designation)
-        level = facility_split[0].lower()
-        facility_type = facility_split[1].lower()
-    else:
-        level = args['--level']
-        facility_type = args['--type']
+    facility_id = args['--facility-id']
 
-    level = level_to_enum.get(level)
-    facility_type = type_to_enum.get(facility_type)
+    facilityCrud.upgrade_facility(database, facility_id)
 
-    facilityCrud.upgrade_facility(database, planet, level, facility_type)
+
+def downgrade_facility(args):
+    database = args['db']
+    facility_id = args['--facility-id']
+
+    facilityCrud.downgrade_facility(database, facility_id)
 
 
 switcher = {
     'create': create_facility,
     'upgrade': upgrade_facility,
+    'downgrade': downgrade_facility,
     'get_facilities': get_facilities
 }
 
