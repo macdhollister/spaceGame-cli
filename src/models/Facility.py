@@ -1,26 +1,9 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Enum, Boolean
 from sqlalchemy.orm import relationship
 
-from src.utils.FacilityEnums import FacilityType, FacilityLevel
+from src.utils.FacilityEnums import FacilityType, FacilityLevel, type_to_abbreviated_str, level_to_abbreviated_str
 from .Base import Base
 from .Planet import Planet
-
-
-facility_type_to_str = {
-    FacilityType.FACTORY: 'F',
-    FacilityType.LABORATORY: 'L',
-    FacilityType.SHIPYARD: 'Y',
-    FacilityType.RADAR: 'R',
-    FacilityType.DEFENSE_GRID: 'D',
-    FacilityType.FLEET_HQ: 'Q',
-    FacilityType.PLANETARY_SHIELDS: 'P'
-}
-
-facility_level_to_str = {
-    FacilityLevel.BASIC: 'B',
-    FacilityLevel.INTERMEDIATE: 'I',
-    FacilityLevel.ADVANCED: 'A'
-}
 
 
 class Facility(Base):
@@ -37,4 +20,4 @@ class Facility(Base):
     planet_relationship = relationship(Planet, back_populates='facilities')
 
     def __repr__(self):
-        return f'{facility_level_to_str.get(self.level)}{facility_type_to_str.get(self.facility_type)}'
+        return f'{level_to_abbreviated_str.get(self.level)}{type_to_abbreviated_str.get(self.facility_type)}'
