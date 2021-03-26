@@ -4,6 +4,7 @@ Usage:
     facility.py create --planet=<string> --type=<string>
     facility.py upgrade --facility-id=<integer>
     facility.py downgrade --facility-id=<integer>
+    facility.py damage --facility-id=<integer>
 
 Options:
     --planet=<string>               The name of the planet that the facility is on
@@ -72,10 +73,18 @@ def downgrade_facility(args):
     facilityCrud.downgrade_facility(database, facility_id)
 
 
+def damage_facility(args):
+    database = args['db']
+    facility_id = args['--facility-id']
+
+    facilityCrud.damage_facility(database, facility_id)
+
+
 switcher = {
     'create': create_facility,
     'upgrade': upgrade_facility,
     'downgrade': downgrade_facility,
+    'damage': damage_facility,
     'get_facilities': get_facilities
 }
 
