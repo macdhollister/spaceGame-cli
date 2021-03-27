@@ -55,7 +55,6 @@ def upgrade_facility(db: Session, facility_id: int):
 
 
 def downgrade_facility(db: Session, facility_id: int):
-    # TODO: Check if shields should reset to full after a facility is downgraded (I think they should)
     facility_query = query_facility_by_id(db, facility_id)
     facility = facility_query.first()
     facility_level = facility.level
@@ -69,19 +68,18 @@ def downgrade_facility(db: Session, facility_id: int):
         return print(f'Destroyed facility {facility_id} ({facility_to_destroy} on {facility_to_destroy.planet})')
 
     facility_query.update({'level': facility.level})
+    restore_single_facility(db, facility_id)
     db.commit()
 
 
 def damage_facility(db: Session, facility_id: int):
     facility = query_facility_by_id(db, facility_id).first()
+    current_shields = facility.shields
 
-    current_hp = 1 + facility.shields
-    new_hp = current_hp - 1
-
-    if new_hp < 1:
+    if current_shields == 0:
         downgrade_facility(db, facility_id)
     else:
-        query_facility_by_id(db, facility_id).update({'shields': facility.shields - 1})
+        query_facility_by_id(db, facility_id).update({'shields': current_shields - 1})
     db.commit()
 
 
