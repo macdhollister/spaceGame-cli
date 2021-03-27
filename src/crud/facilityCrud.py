@@ -8,16 +8,16 @@ from src.crud import planetCrud
 import copy
 
 
-def get_facility_by_id(db: Session, facility_id: int):
-    return db.query(models.Facility).filter_by(id=facility_id).first()
+def query_facility_by_id(db: Session, facility_id: int):
+    return db.query(models.Facility).filter_by(id=facility_id)
 
 
 def get_facilities(db: Session):
     return db.query(models.Facility).all()
 
 
-def get_facilities_on_planet(db: Session, planet_name: str):
-    return db.query(models.Facility).filter_by(planet=planet_name).all()
+def query_facilities_on_planet(db: Session, planet_name: str):
+    return db.query(models.Facility).filter_by(planet=planet_name)
 
 
 def create_facility_from_dict(db: Session, facility):
@@ -39,7 +39,7 @@ def create_facility(db: Session, facility: schemas.FacilityCreate):
 
 
 def upgrade_facility(db: Session, facility_id: int):
-    facility_query = db.query(models.Facility).filter_by(id=facility_id)
+    facility_query = query_facility_by_id(db, facility_id)
     facility = facility_query.first()
     facility_level = facility.level
 
@@ -56,7 +56,7 @@ def upgrade_facility(db: Session, facility_id: int):
 
 def downgrade_facility(db: Session, facility_id: int):
     # TODO: Check if shields should reset to full after a facility is downgraded (I think they should)
-    facility_query = db.query(models.Facility).filter_by(id=facility_id)
+    facility_query = query_facility_by_id(db, facility_id)
     facility = facility_query.first()
     facility_level = facility.level
 
@@ -73,7 +73,7 @@ def downgrade_facility(db: Session, facility_id: int):
 
 
 def damage_facility(db: Session, facility_id: int):
-    facility = get_facility_by_id(db, facility_id)
+    facility = query_facility_by_id(db, facility_id).first()
 
     current_hp = 1 + facility.shields
     new_hp = current_hp - 1
@@ -81,13 +81,56 @@ def damage_facility(db: Session, facility_id: int):
     if new_hp < 1:
         downgrade_facility(db, facility_id)
     else:
-        db.query(models.Facility).filter_by(id=facility_id).update({'shields': facility.shields - 1})
+        query_facility_by_id(db, facility_id).update({'shields': facility.shields - 1})
+    db.commit()
 
 
 def destroy_facility(db: Session, facility_id: int):
-    facility_to_delete = get_facility_by_id(db, facility_id)
+    facility_to_delete = query_facility_by_id(db, facility_id).first()
     facility_copy = copy.deepcopy(facility_to_delete)
 
-    db.query(models.Facility).filter_by(id=facility_id).delete()
+    query_facility_by_id(db, facility_id).delete()
     db.commit()
     return facility_copy
+
+
+def get_shield_contribution(facility):
+    if facility.facility_type != FacilityType.PLANETARY_SHIELDS:
+        return 0
+
+    if facility.level == FacilityLevel.BASIC:
+        return 1
+    elif facility.level == FacilityLevel.INTERMEDIATE:
+        return 2
+    elif facility.level == FacilityLevel.ADVANCED:
+        return 3
+
+
+def get_planet_shield_points(db: Session, planet_name: str):
+    all_facilities = planetCrud.get_planet_facilities(db, planet_name)
+    shield_point_map = list(map(lambda fac: get_shield_contribution(fac), all_facilities))
+    return sum(shield_point_map)
+
+
+def set_facility_shields(db: Session, facilities, total_shields: int):
+    # Note: This intentionally does not commit to the db to support efficiency for bulk updates
+    for facility in facilities:
+        query_facility_by_id(db, facility.id).update({'shields': total_shields})
+
+
+def restore_planet_facilities(db: Session, planet_name: str):
+    facilities = planetCrud.get_planet_facilities(db, planet_name)
+    total_shields = get_planet_shield_points(db, planet_name)
+
+    set_facility_shields(db, facilities, total_shields)
+
+    db.commit()
+
+
+def restore_single_facility(db: Session, facility_id: int):
+    facility = query_facility_by_id(db, facility_id).all()
+    total_shields = get_planet_shield_points(db, facility[0].planet)
+
+    set_facility_shields(db, facility, total_shields)
+
+    db.commit()

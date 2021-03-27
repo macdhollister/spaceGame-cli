@@ -5,6 +5,8 @@ Usage:
     facility.py upgrade --facility-id=<integer>
     facility.py downgrade --facility-id=<integer>
     facility.py damage --facility-id=<integer>
+    facility.py restore_single --facility-id=<integer>
+    facility.py restore_all --planet=<string>
 
 Options:
     --planet=<string>               The name of the planet that the facility is on
@@ -27,7 +29,7 @@ def get_facilities(args):
     database = args['db']
     planet_name = args['--planet']
 
-    facilities = facilityCrud.get_facilities_on_planet(database, planet_name)
+    facilities = facilityCrud.query_facilities_on_planet(database, planet_name).all()
 
     print(dedent(f"""\
                  -------------------------------
@@ -80,12 +82,28 @@ def damage_facility(args):
     facilityCrud.damage_facility(database, facility_id)
 
 
+def restore_single_facility(args):
+    database = args['db']
+    facility_id = args['--facility-id']
+
+    facilityCrud.restore_single_facility(database, facility_id)
+
+
+def restore_planet_facilities(args):
+    database = args['db']
+    planet_name = args['--planet']
+
+    facilityCrud.restore_planet_facilities(database, planet_name)
+
+
 switcher = {
     'create': create_facility,
     'upgrade': upgrade_facility,
     'downgrade': downgrade_facility,
     'damage': damage_facility,
-    'get_facilities': get_facilities
+    'get_facilities': get_facilities,
+    'restore_single': restore_single_facility,
+    'restore_all': restore_planet_facilities
 }
 
 
