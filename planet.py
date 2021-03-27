@@ -19,6 +19,7 @@ from sys import argv
 
 from docopt import docopt
 
+from src.utils.ColonyEnums import colony_type_to_str
 from src.crud import planetCrud, shipCrud
 from src.utils import db
 
@@ -35,7 +36,7 @@ def get_planet_entry(database, planet, faction_name=None):
     col_size_display = ""
     if planet.colony_size and planet.owner:
         max_garrison_points = planetCrud.get_max_garrison_points(database, planet.name)
-        col_size_display = f"- {planet.owner} {planet.colony_size} ({planet.garrison_points}/{max_garrison_points} GP)"
+        col_size_display = f"- {planet.owner} {colony_type_to_str.get(planet.colony_size)} ({planet.garrison_points}/{max_garrison_points} GP)"
 
     ships_on_planet = \
         shipCrud.get_ships_on_planet(database, planet.name) \

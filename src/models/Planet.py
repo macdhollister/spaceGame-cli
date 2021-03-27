@@ -1,6 +1,7 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstraint, PickleType
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship
 
+from src.utils.ColonyEnums import ColonyType
 from .Base import Base
 from .Faction import Faction
 
@@ -19,9 +20,7 @@ class Planet(Base):
     name = Column(String, unique=True, index=True)
     size = Column(String)
 
-    # Colony, Outpost, Stronghold, Fortress
-    # TODO fix this to not be a string. Maybe an enum?
-    colony_size = Column(String, default=None)
+    colony_size = Column(Enum(ColonyType), default=None)
     resources = Column(Integer)
     owner = Column(String, ForeignKey(Faction.faction_name), nullable=True)
     garrison_points = Column(Integer, default=0)

@@ -1,9 +1,8 @@
 from sqlalchemy.orm import Session
 
-from src import models
-from src import schemas
-
+from src import models, schemas
 from src.crud import shipCrud
+from src.utils.ColonyEnums import ColonyType
 from src.utils.FacilityEnums import FacilityType, FacilityLevel
 
 
@@ -37,7 +36,7 @@ def reassign_planet(db: Session, planet, faction_name: str):
 
 
 def colonize_planet(db: Session, planet, faction_name: str):
-    planet.update({'owner': faction_name, 'colony_size': 'Colony'})
+    planet.update({'owner': faction_name, 'colony_size': ColonyType.COLONY})
     db.commit()
 
 
