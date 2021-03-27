@@ -25,7 +25,7 @@ from src.utils import db
 from textwrap import dedent
 
 
-def print_planet(database, planet, faction_name=None):
+def get_planet_entry(database, planet, faction_name=None):
     size_map = {
         's': 'Small',
         'm': 'Medium',
@@ -48,7 +48,11 @@ def print_planet(database, planet, faction_name=None):
             Facilities: {planet.facilities}
             Ships in orbit: {ships_on_planet}
             """
-    print(dedent(entry))
+    return dedent(entry)
+
+
+def print_planet(database, planet, faction_name=None):
+    print(get_planet_entry(database, planet, faction_name))
 
 
 def print_single_planet(args):
