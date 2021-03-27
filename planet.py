@@ -1,14 +1,17 @@
 """
 Usage:
     planet.py generate_planets [--planets-file=<string>]
-    planet.py print_planets [--faction-name=<string>]
-    planet.py print_single_planet --planet-name=<string> [--faction-name=<string>]
-    planet.py claim --planet-name=<string> --faction-name=<string>
+    planet.py print_planets [--faction=<string>]
+    planet.py print_single_planet --planet=<string> [--faction=<string>]
+    planet.py claim --planet=<string> --faction=<string>
+    planet.py damage --planet=<string> [--damage-amount=<integer>]
+    planet.py restore --planet=<string>
 
 Options:
-    --planets-file=<string>         A json file containing planet information
-    --planet-name=<string>          The name of a planet
-    --faction-name=<string>         The name of a faction
+    --planets-file=<string>     A json file containing planet information
+    --planet=<string>           The name of a planet
+    --faction=<string>          The name of a faction
+    --damage-amount=<integer>   The number of garrison points to remove from a planet. Defaults to 1.
 """
 
 import json
@@ -31,7 +34,8 @@ def print_planet(database, planet, faction_name=None):
 
     col_size_display = ""
     if planet.colony_size and planet.owner:
-        col_size_display = "- %s %s" % (planet.owner, planet.colony_size)
+        max_garrison_points = planetCrud.get_max_garrison_points(database, planet.name)
+        col_size_display = f"- {planet.owner} {planet.colony_size} ({planet.garrison_points}/{max_garrison_points} GP)"
 
     ships_on_planet = \
         shipCrud.get_ships_on_planet(database, planet.name) \
@@ -48,8 +52,8 @@ def print_planet(database, planet, faction_name=None):
 
 
 def print_single_planet(args):
-    planet_name = args['--planet-name']
-    faction_name = args['--faction-name']
+    planet_name = args['--planet']
+    faction_name = args['--faction']
     database = args['db']
 
     planet_info = planetCrud.get_planet_by_name(database, planet_name)
@@ -58,7 +62,7 @@ def print_single_planet(args):
 
 def print_planets(args):
     database = args['db']
-    faction_name = args['--faction-name']
+    faction_name = args['--faction']
 
     planet_info = planetCrud.get_planets(database)
 
@@ -81,17 +85,37 @@ def generate_planets(args):
 
 
 def claim_planet(args):
-    planet_name = args['--planet-name']
-    faction_name = args['--faction-name']
+    planet_name = args['--planet']
+    faction_name = args['--faction']
     database = args['db']
     planetCrud.claim_planet(database, planet_name, faction_name)
+
+
+def damage_planet(args):
+    database = args['db']
+    planet_name = args['--planet']
+    amount_to_reduce = args['--damage-amount']
+
+    if amount_to_reduce is None:
+        planetCrud.reduce_garrison_points(database, planet_name)
+    else:
+        planetCrud.reduce_garrison_points(database, planet_name, int(amount_to_reduce))
+
+
+def restore_planet(args):
+    database = args['db']
+    planet_name = args['--planet']
+
+    planetCrud.restore_garrison_points(database, planet_name)
 
 
 switcher = {
     'generate_planets': generate_planets,
     'print_planets': print_planets,
     'print_single_planet': print_single_planet,
-    'claim': claim_planet
+    'claim': claim_planet,
+    'damage': damage_planet,
+    'restore': restore_planet
 }
 
 

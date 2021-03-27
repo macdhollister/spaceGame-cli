@@ -4,6 +4,7 @@ from src import models
 from src import schemas
 
 from src.crud import shipCrud
+from src.utils.FacilityEnums import FacilityType, FacilityLevel
 
 
 def get_planets(db: Session):
@@ -79,6 +80,42 @@ def planet_visible_by_faction(db: Session, planet_name: str, faction_name: str):
 
 
 # ---------- FACILITIES ----------
+
+def get_garrison_contribution(facility):
+    if facility.facility_type != FacilityType.PLANETARY_SHIELDS:
+        return 1
+
+    if facility.level == FacilityLevel.BASIC:
+        return 2
+    elif facility.level == FacilityLevel.INTERMEDIATE:
+        return 3
+    elif facility.level == FacilityLevel.ADVANCED:
+        return 5
+
+
+def get_max_garrison_points(db: Session, planet_name: str):
+    facilities = get_planet_facilities(db, planet_name)
+    garrison_point_map = list(map(lambda fac: get_garrison_contribution(fac), facilities))
+    return sum(garrison_point_map)
+
+
+def set_garrison_points(db: Session, planet_name: str, new_total: int):
+    query_planet_by_name(db, planet_name).update({'garrison_points': new_total})
+    db.commit()
+
+
+def reduce_garrison_points(db: Session, planet_name: str, amount_to_reduce: int = 1):
+    planet_query = query_planet_by_name(db, planet_name)
+    planet = planet_query.first()
+    current_garrison_points = planet.garrison_points
+
+    set_garrison_points(db, planet_name, current_garrison_points - amount_to_reduce)
+
+
+def restore_garrison_points(db: Session, planet_name: str):
+    max_points = get_max_garrison_points(db, planet_name)
+    set_garrison_points(db, planet_name, max_points)
+
 
 def get_planet_facilities(db: Session, planet_name: str):
     return get_planet_by_name(db, planet_name).facilities

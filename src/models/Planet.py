@@ -24,6 +24,7 @@ class Planet(Base):
     colony_size = Column(String, default=None)
     resources = Column(Integer)
     owner = Column(String, ForeignKey(Faction.faction_name), nullable=True)
+    garrison_points = Column(Integer, default=0)
 
     connections = relationship('Planet',
                                secondary=connection,
