@@ -10,8 +10,24 @@ def get_planets(db: Session):
     return db.query(models.Planet).all()
 
 
-def get_planet_by_id(db: Session, planet_id: int):
-    return db.query(models.Planet).filter_by(id=planet_id).first()
+def get_planets_by_faction(db: Session, faction_name: str):
+    """
+    Returns an object containing planets owned by the given faction
+    and planets observed by (but not owned by) the given faction
+    """
+    owned_planets = db.query(models.Planet).filter_by(owner=faction_name).all()
+
+    all_planets = get_planets(db)
+    unowned_planets = [planet for planet in all_planets if planet not in owned_planets]
+    unowned_observed_planets = list(filter(
+        lambda planet: planet_visible_by_faction(db, planet.name, faction_name),
+        unowned_planets
+    ))
+
+    return {
+        'controlled': owned_planets,
+        'observed': list(unowned_observed_planets)
+    }
 
 
 def get_planet_by_name(db: Session, planet_name: str):
