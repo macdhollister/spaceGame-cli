@@ -68,7 +68,6 @@ def downgrade_facility(db: Session, facility_id: int):
         return print(f'Destroyed facility {facility_id} ({facility_to_destroy} on {facility_to_destroy.planet})')
 
     facility_query.update({'level': facility.level})
-    restore_single_facility(db, facility_id)
     db.commit()
 
 
