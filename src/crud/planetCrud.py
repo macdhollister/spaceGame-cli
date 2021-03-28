@@ -140,5 +140,5 @@ def has_facilities(db: Session, planet_name: str, facilities_set: set):
     """Takes a set of facility designations and returns a boolean
     depending on if the planet has any of those facilities"""
     return len(
-        facilities_set & set(map(lambda fac: fac['facility_designation'], get_planet_facilities(db, planet_name)))
+        facilities_set & set(get_planet_facilities(db, planet_name))
     ) > 0
