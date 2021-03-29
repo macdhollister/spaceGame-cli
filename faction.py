@@ -1,13 +1,14 @@
 """
 Usage:
     faction.py generate_factions [--factions-file=<string>]
-    faction.py update_research --faction-name=<string> --module-name=<string> --tech-level=<integer>
-    faction.py update_resource --faction-name=<string> --resource-name=<string> --new-total=<integer>
+    faction.py update_research --faction=<string> --module-name=<string> --tech-level=<integer>
+    faction.py update_resource --faction=<string> --resource-name=<string> --new-total=<integer>
+    faction.py update_all_resources [--faction=<string>]
     faction.py print_factions
 
 Options:
     --factions-file=<string>        A json file containing faction information
-    --faction-name=<string>         Name of a faction
+    --faction=<string>         Name of a faction
     --module-name=<string>          The name of a ship module, underscores in place of spaces. Options are:
                                     armor_plating, command_bridge, ecm_suite, warp_drive, hangar_bay,
                                     marine_barracks, point_defense_battery, sensor_array, heavy_weapons_bay
@@ -74,7 +75,7 @@ def print_factions(args):
 
 def update_research(args):
     database = args['db']
-    faction_name = args['--faction-name']
+    faction_name = args['--faction']
     module_name = args['--module-name']
     tech_level = int(args['--tech-level'])
 
@@ -82,7 +83,7 @@ def update_research(args):
 
 
 def update_resource(args):
-    faction_name = args['--faction-name']
+    faction_name = args['--faction']
     resource_name = args['--resource-name']
     new_total = int(args['--new-total'])
     database = args['db']
@@ -90,11 +91,23 @@ def update_resource(args):
     factionCrud.set_resource(database, faction_name, resource_name, new_total)
 
 
+def update_all_resources(args):
+    database = args['db']
+    faction_name = args['--faction']
+    factions = list(map(lambda fac: fac.faction_name, factionCrud.get_factions(database)))\
+        if faction_name is None\
+        else [faction_name]
+
+    for faction in factions:
+        factionCrud.update_resources(database, faction)
+
+
 switcher = {
     'generate_factions': generate_factions,
     'print_factions': print_factions,
     'update_research': update_research,
-    'update_resource': update_resource
+    'update_resource': update_resource,
+    'update_all_resources': update_all_resources
 }
 
 
