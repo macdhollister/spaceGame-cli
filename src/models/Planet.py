@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstra
 from sqlalchemy.orm import relationship
 
 from src.utils.colonyUtils import ColonyType
-from src.utils.SpecialPlanetEnum import SpecialPlanet
+from src.utils.planetUtils import SpecialPlanet
 from .Base import Base
 from .Faction import Faction
 

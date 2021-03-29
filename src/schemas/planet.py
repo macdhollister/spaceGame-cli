@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 from .ship import Ship
-from src.utils.SpecialPlanetEnum import SpecialPlanet
+from src.utils.planetUtils import SpecialPlanet
 
 
 class PlanetBase(BaseModel):

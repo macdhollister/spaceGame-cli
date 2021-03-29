@@ -4,7 +4,7 @@ from src import models, schemas
 from src.crud import shipCrud
 from src.utils.colonyUtils import ColonyType
 from src.utils.FacilityEnum import FacilityType, FacilityLevel
-from src.utils.SpecialPlanetEnum import special_str_to_enum, SpecialPlanet
+from src.utils.planetUtils import special_str_to_enum, SpecialPlanet
 
 
 def get_planets(db: Session):
