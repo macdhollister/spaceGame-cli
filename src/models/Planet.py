@@ -2,6 +2,7 @@ from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstra
 from sqlalchemy.orm import relationship
 
 from src.utils.ColonyEnum import ColonyType
+from src.utils.SpecialPlanetEnum import SpecialPlanet
 from .Base import Base
 from .Faction import Faction
 
@@ -19,6 +20,7 @@ class Planet(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
     size = Column(String)
+    special = Column(Enum(SpecialPlanet), default=SpecialPlanet.STANDARD)
 
     colony_size = Column(Enum(ColonyType), default=None)
     resources = Column(Integer)

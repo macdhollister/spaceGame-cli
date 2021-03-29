@@ -93,6 +93,7 @@ def get_planet_entry(database, planet, faction_name):
 
     return f"""
            {planet.name} ({size_map[planet.size]}-{planet.resources}) {col_size_display}
+           Special: {planet.special.value}
            Owner: {planet_owner}
            Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
            Facilities: {planet.facilities}

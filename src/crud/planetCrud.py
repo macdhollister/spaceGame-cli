@@ -4,6 +4,7 @@ from src import models, schemas
 from src.crud import shipCrud
 from src.utils.ColonyEnum import ColonyType
 from src.utils.FacilityEnum import FacilityType, FacilityLevel
+from src.utils.SpecialPlanetEnum import special_str_to_enum
 
 
 def get_planets(db: Session):
@@ -64,7 +65,8 @@ def create_planet(db: Session, planet: schemas.PlanetCreate):
     db_planet = models.Planet(
         name=planet.name,
         size=planet.size,
-        resources=planet.resources
+        resources=planet.resources,
+        special=planet.special
     )
     db.add(db_planet)
     db.commit()

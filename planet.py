@@ -45,6 +45,7 @@ def get_planet_entry(database, planet, faction_name=None):
 
     entry = f"""\
             {planet.name} ({size_map[planet.size]}-{planet.resources}) {col_size_display}
+            Special: {planet.special.value}
             Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
             Facilities: {planet.facilities}
             Ships in orbit: {ships_on_planet}
