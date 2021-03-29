@@ -43,15 +43,21 @@ def generate_resources_section(args):
 
 
 def generate_module_research_section(args):
-    armor_research = 0
-    bridge_research = 0
-    ecm_research = 0
-    warp_drive_research = 0
-    hangar_research = 0
-    point_defense_research = 0
-    sensor_research = 0
-    barracks_research = 0
-    heavy_weapons_research = 0
+    database = args['db']
+    faction_name = args['--faction']
+
+    faction = factionCrud.query_faction_by_name(database, faction_name).first()
+    research = faction.research
+
+    armor_research = research['armor_plating']
+    bridge_research = research['command_bridge']
+    ecm_research = research['ecm_suite']
+    warp_drive_research = research['warp_drive']
+    hangar_research = research['hangar_bay']
+    point_defense_research = research['point_defense_battery']
+    sensor_research = research['sensor_array']
+    barracks_research = research['marine_barracks']
+    heavy_weapons_research = research['heavy_weapons_bay']
 
     return dedent(f"""\
            ------------------------
@@ -123,11 +129,11 @@ def generate_planets_section(args):
 
 def print_report(args):
     resources_section = generate_resources_section(args)
-    # module_research_section = generate_module_research_section(args)
+    module_research_section = generate_module_research_section(args)
     planets_section = generate_planets_section(args)
 
     print(resources_section)
-    # print(module_research_section)
+    print(module_research_section)
     print(planets_section)
 
 
