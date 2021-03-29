@@ -21,7 +21,7 @@ from docopt import docopt
 
 from src.utils.colonyUtils import colony_type_to_str
 from src.crud import planetCrud, shipCrud
-from src.utils import db
+from src.utils import db, planetUtils
 
 from textwrap import dedent
 
@@ -77,10 +77,16 @@ def print_planets(args):
 
 
 def generate_planets(args):
-    if args['--planets-file'] is None:
-        args['--planets-file'] = "game_resources/planets.json"
+    planets_file_path = args['--planets-file']
 
-    with open(args['--planets-file']) as f:
+    if planets_file_path is None:
+        planets_file_path = "game_resources/planets.json"
+
+    errors = planetUtils.validate_planets_file(planets_file_path)
+    if len(errors) > 0:
+        return print('\n'.join(errors))
+
+    with open(planets_file_path) as f:
         planets_from_file = json.load(f)['planets']
 
     try:
