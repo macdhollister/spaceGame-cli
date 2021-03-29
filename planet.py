@@ -19,7 +19,7 @@ from sys import argv
 
 from docopt import docopt
 
-from src.utils.ColonyEnums import colony_type_to_str
+from src.utils.ColonyEnum import colony_type_to_str
 from src.crud import planetCrud, shipCrud
 from src.utils import db
 

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src import models, schemas
-from src.utils.FacilityEnums import FacilityType, FacilityLevel
+from src.utils.FacilityEnum import FacilityType, FacilityLevel
 
 from src.crud import planetCrud
 

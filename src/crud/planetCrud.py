@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 
 from src import models, schemas
 from src.crud import shipCrud
-from src.utils.ColonyEnums import ColonyType
-from src.utils.FacilityEnums import FacilityType, FacilityLevel
+from src.utils.ColonyEnum import ColonyType
+from src.utils.FacilityEnum import FacilityType, FacilityLevel
 
 
 def get_planets(db: Session):

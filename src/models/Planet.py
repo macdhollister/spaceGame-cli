@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship
 
-from src.utils.ColonyEnums import ColonyType
+from src.utils.ColonyEnum import ColonyType
 from .Base import Base
 from .Faction import Faction
 

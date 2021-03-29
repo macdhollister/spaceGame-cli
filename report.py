@@ -16,7 +16,7 @@ from src.utils import db
 
 from textwrap import dedent
 
-from src.utils.ColonyEnums import colony_type_to_str
+from src.utils.ColonyEnum import colony_type_to_str
 
 
 def generate_resources_section(args):

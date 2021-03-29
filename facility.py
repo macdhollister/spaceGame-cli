@@ -20,7 +20,7 @@ from docopt import docopt
 
 from src.crud import facilityCrud
 from src.utils import db
-from src.utils.FacilityEnums import type_to_enum, type_to_str, level_to_str
+from src.utils.FacilityEnum import type_to_enum, type_to_str, level_to_str
 
 from textwrap import dedent
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src import models
 from src import schemas
 from src.crud import planetCrud
-from src.utils.FacilityEnums import FacilityType
+from src.utils.FacilityEnum import FacilityType
 
 
 def get_resource_income(db: Session, faction_name: str, resource_type: str):
