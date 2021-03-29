@@ -30,6 +30,10 @@ def get_planets_by_faction(db: Session, faction_name: str):
     }
 
 
+def query_planets_by_owner(db: Session, owner: str):
+    return db.query(models.Planet).filter_by(owner=owner)
+
+
 def get_planet_by_name(db: Session, planet_name: str):
     return query_planet_by_name(db, planet_name).first()
 
@@ -95,6 +99,75 @@ def planet_visible_by_faction(db: Session, planet_name: str, faction_name: str):
 
 
 # ---------- FACILITIES ----------
+
+def get_lp_production(db: Session, planet_name: str):
+    production = 0
+
+    planet = get_planet_by_name(db, planet_name)
+    facilities = planet.facilities
+
+    headquarters = filter(lambda f: f.facility_type == FacilityType.FLEET_HQ, facilities)
+
+    for hq in headquarters:
+        if hq.level == FacilityLevel.BASIC:
+            production += 2
+        elif hq.level == FacilityLevel.INTERMEDIATE:
+            production += 4
+        elif hq.level == FacilityLevel.ADVANCED:
+            production += 8
+
+    return production
+
+
+def get_rp_production(db: Session, planet_name: str):
+    production = 0
+
+    planet = get_planet_by_name(db, planet_name)
+    facilities = planet.facilities
+
+    labs = filter(lambda f: f.facility_type == FacilityType.LABORATORY, facilities)
+
+    for lab in labs:
+        if lab.level == FacilityLevel.BASIC:
+            production += 1
+        elif lab.level == FacilityLevel.INTERMEDIATE:
+            production += 2
+        elif lab.level == FacilityLevel.ADVANCED:
+            production += 4
+
+    return production
+
+
+def get_mp_production(db: Session, planet_name: str):
+    production = 0
+
+    planet = get_planet_by_name(db, planet_name)
+    planet_resources = planet.resources
+    facilities = planet.facilities
+
+    factories = filter(lambda f: f.facility_type == FacilityType.FACTORY, facilities)
+
+    for factory in factories:
+        if factory.level == FacilityLevel.BASIC:
+            production += planet_resources
+        elif factory.level == FacilityLevel.INTERMEDIATE:
+            production += 2 * planet_resources
+        elif factory.level == FacilityLevel.ADVANCED:
+            production += 3 * planet_resources
+
+    return production
+
+
+def get_resource_production(db: Session, planet_name: str, resource_type: str):
+    if resource_type.lower() == "mp":
+        return get_mp_production(db, planet_name)
+    elif resource_type.lower() == "rp":
+        return get_rp_production(db, planet_name)
+    elif resource_type.lower() == "lp":
+        return get_lp_production(db, planet_name)
+    else:
+        raise ValueError("Only 'mp', 'rp', and 'lp' are valid resource types.")
+
 
 def get_garrison_contribution(facility):
     if facility.facility_type != FacilityType.PLANETARY_SHIELDS:
