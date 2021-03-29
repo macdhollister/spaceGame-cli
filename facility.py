@@ -1,8 +1,8 @@
 """
 Usage:
     facility.py get_facilities --planet=<string>
-    facility.py create --planet=<string> --type=<string>
-    facility.py upgrade --facility-id=<integer>
+    facility.py create --planet=<string> --type=<string> [--blockaded]
+    facility.py upgrade --facility-id=<integer> [--blockaded]
     facility.py downgrade --facility-id=<integer>
     facility.py damage --facility-id=<integer>
     facility.py restore_single --facility-id=<integer>
@@ -12,17 +12,17 @@ Options:
     --planet=<string>               The name of the planet that the facility is on
     --type=<string>                 A designation (name or abbreviation) of a facility
     --facility-id=<integer>         The unique identifier for a facility (can be found via get_facilities method)
+    --blockaded                     Takes no argument. Add this flag if the planet is blockaded.
 """
 
 from sys import argv
+from textwrap import dedent
 
 from docopt import docopt
 
-from src.crud import facilityCrud
+from src.crud import facilityCrud, planetCrud
 from src.utils import db
 from src.utils.FacilityEnum import type_to_enum, type_to_str, level_to_str
-
-from textwrap import dedent
 
 
 def get_facilities(args):
@@ -52,6 +52,7 @@ def create_facility(args):
     database = args['db']
     planet_name = args['--planet']
     facility_type = type_to_enum.get(args['--type'].lower())
+    is_blockaded = args['--blockaded']
 
     facility = {
         'planet': planet_name,
@@ -60,12 +61,23 @@ def create_facility(args):
 
     facilityCrud.create_facility_from_dict(database, facility)
 
+    if not is_blockaded:
+        planetCrud.restore_garrison_points(database, planet_name)
+        facilityCrud.restore_planet_facilities(database, planet_name)
+
 
 def upgrade_facility(args):
     database = args['db']
     facility_id = args['--facility-id']
+    is_blockaded = args['--blockaded']
 
     facilityCrud.upgrade_facility(database, facility_id)
+
+    if not is_blockaded:
+        planet_name = facilityCrud.query_facility_by_id(database, facility_id).first().planet
+
+        planetCrud.restore_garrison_points(database, planet_name)
+        facilityCrud.restore_planet_facilities(database, planet_name)
 
 
 def downgrade_facility(args):
