@@ -16,7 +16,9 @@ from src.utils import db
 
 from textwrap import dedent
 
-from src.utils.ColonyEnum import colony_type_to_str
+from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
+
+import copy
 
 
 def generate_resources_section(args):
@@ -82,12 +84,20 @@ def get_planet_entry(database, planet, faction_name):
         'l': 'Large'
     }
 
+    facilities = [fac.__repr__() for fac in planet.facilities]
+
     col_size_display = ""
     planet_owner = "unclaimed"
+    num_facilities = len(facilities)
     if planet.colony_size and planet.owner:
         max_garrison_points = planetCrud.get_max_garrison_points(database, planet.name)
         col_size_display = f"- {colony_type_to_str.get(planet.colony_size)} ({planet.garrison_points}/{max_garrison_points} GP)"
         planet_owner = planet.owner
+
+        max_facilities = maximum_facilities.get(planet.colony_size)
+        empty_facilities = max_facilities - num_facilities
+
+        facilities.append(f"{empty_facilities} empty")
 
     ships_on_planet = shipCrud.get_visible_ships_on_planet(database, planet.name, faction_name)
 
@@ -96,7 +106,7 @@ def get_planet_entry(database, planet, faction_name):
            Special: {planet.special.value}
            Owner: {planet_owner}
            Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
-           Facilities: {planet.facilities}
+           Facilities: {facilities}
            Ships in orbit: {ships_on_planet}
            """
 

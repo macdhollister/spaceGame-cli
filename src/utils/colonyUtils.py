@@ -22,3 +22,11 @@ colony_str_to_type = {
     'Stronghold': ColonyType.STRONGHOLD,
     'Fortress': ColonyType.FORTRESS,
 }
+
+
+maximum_facilities = {
+    ColonyType.COLONY: 2,
+    ColonyType.OUTPOST: 4,
+    ColonyType.STRONGHOLD: 7,
+    ColonyType.FORTRESS: 11
+}
