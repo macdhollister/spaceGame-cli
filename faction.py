@@ -78,7 +78,7 @@ def update_research(args):
     module_name = args['--module-name']
     tech_level = int(args['--tech-level'])
 
-    factionCrud.update_research(database, faction_name, module_name, tech_level)
+    factionCrud.set_research(database, faction_name, module_name, tech_level)
 
 
 def update_resource(args):
@@ -87,7 +87,7 @@ def update_resource(args):
     new_total = int(args['--new-total'])
     database = args['db']
 
-    factionCrud.update_resource(database, faction_name, resource_name, new_total)
+    factionCrud.set_resource(database, faction_name, resource_name, new_total)
 
 
 switcher = {

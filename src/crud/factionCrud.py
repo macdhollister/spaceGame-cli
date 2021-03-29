@@ -2,9 +2,22 @@ from sqlalchemy.orm import Session
 
 from src import models
 from src import schemas
+from src.crud import planetCrud
+from src.utils.FacilityEnums import FacilityType
 
 
-def update_research(db: Session, faction_name: str, module_name: str, tech_level: int):
+def get_resource_income(db: Session, faction_name: str, resource_type: str):
+    income = 0
+
+    owned_planets = planetCrud.query_planets_by_owner(db, faction_name).all()
+
+    for planet in owned_planets:
+        income += planetCrud.get_resource_production(db, planet.name, resource_type)
+
+    return income
+
+
+def set_research(db: Session, faction_name: str, module_name: str, tech_level: int):
     faction_query = query_faction_by_name(db, faction_name)
     faction_research = faction_query.first().research
     faction_research[module_name] = tech_level
@@ -14,7 +27,23 @@ def update_research(db: Session, faction_name: str, module_name: str, tech_level
     return faction_query
 
 
-def update_resource(db: Session, faction_name: str, resource: str, new_total: int):
+def update_resources(db: Session, faction_name: str):
+    faction_query = query_faction_by_name(db, faction_name)
+    faction = faction_query.first()
+
+    mp_income = get_resource_income(db, faction_name, "mp")
+    rp_income = get_resource_income(db, faction_name, "rp")
+    lp_income = get_resource_income(db, faction_name, "lp")
+
+    current_mp = faction.mp
+    current_rp = faction.rp
+
+    set_resource(db, faction_name, "mp", current_mp + mp_income)
+    set_resource(db, faction_name, "rp", current_rp + rp_income)
+    set_resource(db, faction_name, "lp", lp_income)
+
+
+def set_resource(db: Session, faction_name: str, resource: str, new_total: int):
     valid_resources = ['mp', 'lp', 'rp']
     if resource.lower() not in valid_resources:
         raise ValueError("Valid resources are mp, lp, and rp")
