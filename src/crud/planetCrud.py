@@ -4,7 +4,7 @@ from src import models, schemas
 from src.crud import shipCrud
 from src.utils.ColonyEnum import ColonyType
 from src.utils.FacilityEnum import FacilityType, FacilityLevel
-from src.utils.SpecialPlanetEnum import special_str_to_enum
+from src.utils.SpecialPlanetEnum import special_str_to_enum, SpecialPlanet
 
 
 def get_planets(db: Session):
@@ -118,6 +118,9 @@ def get_lp_production(db: Session, planet_name: str):
         elif hq.level == FacilityLevel.ADVANCED:
             production += 8
 
+        if planet.special == SpecialPlanet.LOGISTICS:
+            production += 1
+
     return production
 
 
@@ -136,6 +139,9 @@ def get_rp_production(db: Session, planet_name: str):
             production += 2
         elif lab.level == FacilityLevel.ADVANCED:
             production += 4
+
+        if planet.special == SpecialPlanet.ARTIFACT:
+            production += 1
 
     return production
 
