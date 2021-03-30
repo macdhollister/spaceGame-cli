@@ -54,23 +54,13 @@ def set_resource(db: Session, faction_name: str, resource: str, new_total: int):
     db.commit()
 
 
-def get_faction(db: Session, faction_id: int):
-    db_faction = db.query(models.Faction).filter_by(id=faction_id).first()
-
-    # ships = []
-    # for ship in db_faction.ships:
-    #     ships.append(json.loads(str(ship)))
-
-    return {
-        "id": db_faction.id,
-        "faction_name": db_faction.faction_name,
-        "is_active": db_faction.is_active,
-        # "ships": ships
-    }
-
-
 def query_faction_by_name(db: Session, faction_name: str):
-    return db.query(models.Faction).filter_by(faction_name=faction_name)
+    query = db.query(models.Faction).filter_by(faction_name=faction_name)
+
+    if query.first() is None:
+        query = db.query(models.Faction).filter_by(faction_alias=faction_name)
+
+    return query
 
 
 def get_factions(db: Session):
@@ -78,7 +68,10 @@ def get_factions(db: Session):
 
 
 def create_faction(db: Session, faction: schemas.FactionCreate):
-    db_faction = models.Faction(faction_name=faction.faction_name)
+    db_faction = models.Faction(
+        faction_name=faction.faction_name,
+        faction_alias=faction.faction_alias
+    )
     db.add(db_faction)
     db.commit()
     db.refresh(db_faction)

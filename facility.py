@@ -20,7 +20,7 @@ from textwrap import dedent
 
 from docopt import docopt
 
-from src.crud import facilityCrud, planetCrud
+from src.crud import facilityCrud, planetCrud, factionCrud
 from src.utils import db
 from src.utils.FacilityEnum import type_to_enum, type_to_str, level_to_str
 
@@ -124,5 +124,11 @@ if __name__ == '__main__':
         argv.append('-h')
     kwargs = docopt(__doc__)
     kwargs['db'] = db.get_db()
+
+    # Accounting for faction name aliases as soon as possible
+    if '--faction' in kwargs:
+        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
+        kwargs['--faction'] = db_faction.faction_name
+
     method = argv[1]
     switcher.get(method)(kwargs)

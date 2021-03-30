@@ -20,7 +20,7 @@ from sys import argv
 from docopt import docopt
 
 from src.utils.colonyUtils import colony_type_to_str
-from src.crud import planetCrud, shipCrud
+from src.crud import planetCrud, shipCrud, factionCrud
 from src.utils import db, planetUtils
 
 from textwrap import dedent
@@ -136,5 +136,11 @@ if __name__ == '__main__':
         argv.append('-h')
     kwargs = docopt(__doc__)
     kwargs['db'] = db.get_db()
+
+    # Accounting for faction name aliases as soon as possible
+    if '--faction' in kwargs:
+        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
+        kwargs['--faction'] = db_faction.faction_name
+
     method = argv[1]
     switcher.get(method)(kwargs)
