@@ -25,7 +25,16 @@ def get_size(ship):
     return int(len(ship.modules) / 2)
 
 
-def ships_to_str(ship_list):
+def ships_to_str_owned(ship_list):
+    ships = list(map(lambda ship: f"<id: {ship.id}, {ship.modules}>", ship_list))
+    ships.insert(0, "Owned Ships:")
+
+    return ships
+
+
+def ships_to_str_observed(ship_list):
+    ship_list = list(map(lambda ship: get_size(ship), ship_list))
+
     counts = Counter(ship_list)
 
     ship_types = list(counts.keys())
