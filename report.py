@@ -106,7 +106,7 @@ def get_planet_entry(database, planet, faction_name):
            Special: {planet.special.value}
            Owner: {planet_owner}
            Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
-           Facilities: {facilities}
+           Facilities: {f"{'[%s]' % ', '.join(map(str, facilities))}"}
            Ships in orbit: 
                {ships_to_display}
            """
