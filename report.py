@@ -101,7 +101,9 @@ def get_planet_entry(database, planet, faction_name):
 
     owned_ships = grouped_ships.pop(faction_name, None)
 
-    owned_ships_display = '\n               '.join(ships_to_str_owned(owned_ships))
+    owned_ships_display = ""
+    if owned_ships is not None:
+        owned_ships_display = '\n               '.join(ships_to_str_owned(owned_ships))
 
     # Owned ships have been removed from 'grouped_ships' via the call to pop() above
     observed_ships_display = '\n               '.join([f"{faction}: {ships_to_str_observed(grouped_ships[faction])}" for faction in grouped_ships.keys()])
