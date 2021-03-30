@@ -15,6 +15,7 @@ from docopt import docopt
 from src.crud import shipCrud, planetCrud, factionCrud
 from src.utils import db
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
+from src.utils.shipUtils import get_ships_with_factions, ships_to_str
 
 
 def generate_resources_section(args):
@@ -96,6 +97,9 @@ def get_planet_entry(database, planet, faction_name):
         facilities.append(f"{empty_facilities} empty")
 
     ships_on_planet = shipCrud.get_visible_ships_on_planet(database, planet.name, faction_name)
+    grouped_ships = get_ships_with_factions(ships_on_planet)
+
+    ships_to_display = '\n               '.join([f"{faction}: {ships_to_str(grouped_ships[faction])}" for faction in grouped_ships.keys()])
 
     return f"""
            {planet.name} ({size_map[planet.size]}-{planet.resources}) {col_size_display}
@@ -103,7 +107,8 @@ def get_planet_entry(database, planet, faction_name):
            Owner: {planet_owner}
            Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
            Facilities: {facilities}
-           Ships in orbit: {ships_on_planet}
+           Ships in orbit: 
+               {ships_to_display}
            """
 
 
