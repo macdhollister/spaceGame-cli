@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Enum, Boolean
 from sqlalchemy.orm import relationship
 
 from src.utils.FacilityEnum import FacilityType, FacilityLevel, type_to_abbreviated_str, level_to_abbreviated_str
+from src.utils.db import generate_id
 from .Base import Base
 from .Planet import Planet
 
@@ -9,7 +10,7 @@ from .Planet import Planet
 class Facility(Base):
     __tablename__ = 'Facility'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=generate_id)
     level = Column(Enum(FacilityLevel), default=FacilityLevel.BASIC)
     facility_type = Column(Enum(FacilityType))
     planet = Column(String, ForeignKey(Planet.name))

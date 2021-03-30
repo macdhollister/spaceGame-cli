@@ -14,4 +14,4 @@ class FacilityCreate(FacilityBase):
 
 
 class Facility(FacilityBase):
-    id: int
+    id: str

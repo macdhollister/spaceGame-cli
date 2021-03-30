@@ -2,14 +2,15 @@ from sqlalchemy import Table, Column, Integer, String, ForeignKey, UniqueConstra
 from sqlalchemy.orm import relationship
 
 from src.utils.colonyUtils import ColonyType
+from src.utils.db import generate_id
 from src.utils.planetUtils import SpecialPlanet
 from .Base import Base
 from .Faction import Faction
 
 connection = Table(
     'PlanetConnection', Base.metadata,
-    Column('planet_a_id', Integer, ForeignKey('Planet.id'), index=True),
-    Column('planet_b_id', Integer, ForeignKey('Planet.id')),
+    Column('planet_a_id', String, ForeignKey('Planet.id'), index=True),
+    Column('planet_b_id', String, ForeignKey('Planet.id')),
     UniqueConstraint('planet_a_id', 'planet_b_id', name='unique_connections')
 )
 
@@ -17,7 +18,7 @@ connection = Table(
 class Planet(Base):
     __tablename__ = 'Planet'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=generate_id)
     name = Column(String, unique=True, index=True)
     size = Column(String)
     special = Column(Enum(SpecialPlanet), default=SpecialPlanet.STANDARD)

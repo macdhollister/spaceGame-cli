@@ -18,7 +18,7 @@ class PlanetCreate(PlanetBase):
 
 
 class Planet(PlanetBase):
-    id: int
+    id: str
     owner: str = None
     connections: List['Planet'] = []
     ships: List[Ship] = []

@@ -12,4 +12,4 @@ class ShipCreate(ShipBase):
 
 
 class Ship(ShipBase):
-    id: int
+    id: str

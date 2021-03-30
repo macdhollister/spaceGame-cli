@@ -1,13 +1,14 @@
 from sqlalchemy import Boolean, Column, Integer, String, PickleType
 from sqlalchemy.orm import relationship
 
+from src.utils.db import generate_id
 from .Base import Base
 
 
 class Faction(Base):
     __tablename__ = 'Faction'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=generate_id)
     faction_name = Column(String, unique=True, index=True)
     faction_alias = Column(String, unique=True, index=True, default="")
     mp = Column(Integer, default=40)

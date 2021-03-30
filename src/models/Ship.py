@@ -1,6 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from src.utils.db import generate_id
 from .Base import Base
 from .Faction import Faction
 from .Planet import Planet
@@ -29,7 +30,7 @@ def get_detection_level(context):
 class Ship(Base):
     __tablename__ = 'Ship'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=generate_id)
     modules = Column(String)
     owner = Column(String, ForeignKey(Faction.faction_name))
     location = Column(String, ForeignKey(Planet.name))

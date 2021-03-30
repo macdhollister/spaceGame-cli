@@ -17,7 +17,7 @@ class FactionCreate(FactionBase):
 
 
 class Faction(FactionBase):
-    id: int
+    id: str
     mp: int
     rp: int
     lp: int
