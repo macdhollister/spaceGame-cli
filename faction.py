@@ -8,7 +8,7 @@ Usage:
 
 Options:
     --factions-file=<string>        A json file containing faction information
-    --faction=<string>         Name of a faction
+    --faction=<string>              Name of a faction
     --module-name=<string>          The name of a ship module, underscores in place of spaces. Options are:
                                     armor_plating, command_bridge, ecm_suite, warp_drive, hangar_bay,
                                     marine_barracks, point_defense_battery, sensor_array, heavy_weapons_bay
