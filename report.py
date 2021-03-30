@@ -14,6 +14,7 @@ from docopt import docopt
 
 from src.crud import shipCrud, planetCrud, factionCrud
 from src.utils import db
+from src.utils.FacilityEnum import display_facilities
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
 from src.utils.shipUtils import ships_to_str_observed, group_ships_by_faction, ships_to_str_owned
 
@@ -97,6 +98,8 @@ def get_planet_entry(database, planet, faction_name):
         if empty_facilities > 0:
             facilities.append(f"{empty_facilities} empty")
 
+    facilities_display = display_facilities(facilities)
+
     ships_on_planet = shipCrud.get_visible_ships_on_planet(database, planet.name, faction_name)
     grouped_ships = group_ships_by_faction(ships_on_planet)
 
@@ -114,7 +117,7 @@ def get_planet_entry(database, planet, faction_name):
            Special: {planet.special.value}
            Owner: {planet_owner}
            Connections: {', '.join(list(map(lambda c: c.name, planet.connections)))}
-           Facilities: {f"{'[%s]' % ', '.join(map(str, facilities))}"}
+           Facilities: {facilities_display}
            {owned_ships_display}
            {observed_ships_display}
            """

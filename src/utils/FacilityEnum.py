@@ -1,4 +1,5 @@
 import enum
+from collections import Counter
 
 
 class FacilityLevel(enum.Enum):
@@ -74,3 +75,16 @@ level_to_enum = {
     'advanced': FacilityLevel.ADVANCED,
     'a': FacilityLevel.ADVANCED
 }
+
+
+def display_facilities(facilities):
+    counts = Counter(facilities)
+    types_array = []
+
+    for fac_type in counts.keys():
+        types_array.append(f"{fac_type}{' x'+str(counts.get(fac_type)) if counts.get(fac_type) > 1 else ''}")
+
+    if len(types_array) > 0:
+        return f"[{', '.join(types_array)}]"
+    else:
+        return "No facilities"
