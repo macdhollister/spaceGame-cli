@@ -94,7 +94,8 @@ def get_planet_entry(database, planet, faction_name):
         max_facilities = maximum_facilities.get(planet.colony_size)
         empty_facilities = max_facilities - num_facilities
 
-        facilities.append(f"{empty_facilities} empty")
+        if empty_facilities > 0:
+            facilities.append(f"{empty_facilities} empty")
 
     ships_on_planet = shipCrud.get_visible_ships_on_planet(database, planet.name, faction_name)
     grouped_ships = group_ships_by_faction(ships_on_planet)
