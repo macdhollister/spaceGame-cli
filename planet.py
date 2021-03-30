@@ -4,6 +4,7 @@ Usage:
     planet.py print_planets [--faction=<string>]
     planet.py print_single_planet --planet=<string> [--faction=<string>]
     planet.py claim --planet=<string> --faction=<string>
+    planet.py upgrade --planet=<string>
     planet.py damage --planet=<string> [--damage-amount=<integer>]
     planet.py restore --planet=<string>
 
@@ -103,6 +104,13 @@ def claim_planet(args):
     planetCrud.claim_planet(database, planet_name, faction_name)
 
 
+def upgrade_planet(args):
+    database = args['db']
+    planet_name = args['--planet']
+
+    planetCrud.upgrade_colony_type(database, planet_name)
+
+
 def damage_planet(args):
     database = args['db']
     planet_name = args['--planet']
@@ -126,6 +134,7 @@ switcher = {
     'print_planets': print_planets,
     'print_single_planet': print_single_planet,
     'claim': claim_planet,
+    'upgrade': upgrade_planet,
     'damage': damage_planet,
     'restore': restore_planet
 }

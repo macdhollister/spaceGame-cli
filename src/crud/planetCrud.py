@@ -61,6 +61,25 @@ def colonize_planet(db: Session, planet, faction_name: str):
     db.commit()
 
 
+def upgrade_colony_type(db: Session, planet_name: str):
+    planet_query = query_planet_by_name(db, planet_name)
+    planet = planet_query.first()
+    colony_size = planet.colony_size
+
+    if planet.owner:
+        if colony_size == ColonyType.COLONY:
+            new_colony_size = ColonyType.OUTPOST
+        elif colony_size == ColonyType.OUTPOST:
+            new_colony_size = ColonyType.STRONGHOLD
+        elif colony_size == ColonyType.STRONGHOLD:
+            new_colony_size = ColonyType.FORTRESS
+        else:
+            raise ValueError("Only colonies, outposts, and strongholds can be upgraded.")
+
+        planet_query.update({'colony_size': new_colony_size})
+        db.commit()
+
+
 def create_planet(db: Session, planet: schemas.PlanetCreate):
     db_planet = models.Planet(
         name=planet.name,
