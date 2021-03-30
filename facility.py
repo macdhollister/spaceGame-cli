@@ -125,10 +125,5 @@ if __name__ == '__main__':
     kwargs = docopt(__doc__)
     kwargs['db'] = db.get_db()
 
-    # Accounting for faction name aliases as soon as possible
-    if kwargs['--faction'] is not None:
-        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
-        kwargs['--faction'] = db_faction.faction_name
-
     method = argv[1]
     switcher.get(method)(kwargs)
