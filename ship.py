@@ -113,7 +113,7 @@ if __name__ == '__main__':
     kwargs['db'] = db.get_db()
 
     # Accounting for faction name aliases as soon as possible
-    if '--faction' in kwargs:
+    if kwargs['--faction'] is not None:
         db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
         kwargs['--faction'] = db_faction.faction_name
 
