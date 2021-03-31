@@ -38,23 +38,6 @@ type_to_str = {
     FacilityType.PLANETARY_SHIELDS: 'Planetary Shield'
 }
 
-type_to_enum = {
-    'factory': FacilityType.FACTORY,
-    'f': FacilityType.FACTORY,
-    'laboratory': FacilityType.LABORATORY,
-    'l': FacilityType.LABORATORY,
-    'shipyard': FacilityType.SHIPYARD,
-    'y': FacilityType.SHIPYARD,
-    'radar': FacilityType.RADAR,
-    'r': FacilityType.RADAR,
-    'defense_grid': FacilityType.DEFENSE_GRID,
-    'd': FacilityType.DEFENSE_GRID,
-    'fleet_hq': FacilityType.FLEET_HQ,
-    'q': FacilityType.FLEET_HQ,
-    'planetary_shields': FacilityType.PLANETARY_SHIELDS,
-    'p': FacilityType.PLANETARY_SHIELDS
-}
-
 level_to_abbreviated_str = {
     FacilityLevel.BASIC: 'B',
     FacilityLevel.INTERMEDIATE: 'I',
@@ -67,14 +50,15 @@ level_to_str = {
     FacilityLevel.ADVANCED: 'Advanced'
 }
 
-level_to_enum = {
-    'basic': FacilityLevel.BASIC,
-    'b': FacilityLevel.BASIC,
-    'intermediate': FacilityLevel.INTERMEDIATE,
-    'i': FacilityLevel.INTERMEDIATE,
-    'advanced': FacilityLevel.ADVANCED,
-    'a': FacilityLevel.ADVANCED
-}
+all_facility_types = [
+    'factory',
+    'laboratory',
+    'shipyard',
+    'radar',
+    'defense_grid',
+    'fleet_hq',
+    'planetary_shields'
+]
 
 
 def display_facilities(facilities):

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.utils.FacilityEnum import FacilityLevel, FacilityType
+from src.utils.facilityUtils import FacilityLevel, FacilityType
 
 
 class FacilityBase(BaseModel):

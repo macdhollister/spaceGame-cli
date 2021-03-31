@@ -14,7 +14,7 @@ from docopt import docopt
 
 from src.crud import shipCrud, planetCrud, factionCrud
 from src.utils import db
-from src.utils.FacilityEnum import display_facilities
+from src.utils.facilityUtils import display_facilities
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
 from src.utils.shipUtils import ships_to_str_observed, group_ships_by_faction, ships_to_str_owned
 

@@ -1,33 +1,27 @@
 """
 Usage:
-    facility.py get_facilities --planet=<string>
-    facility.py create --planet=<string> --type=<string> [--blockaded]
-    facility.py upgrade --facility-id=<integer> [--blockaded]
-    facility.py downgrade --facility-id=<integer>
-    facility.py damage --facility-id=<integer>
-    facility.py restore_single --facility-id=<integer>
-    facility.py restore_all --planet=<string>
-
-Options:
-    --planet=<string>               The name of the planet that the facility is on
-    --type=<string>                 A designation (name or abbreviation) of a facility
-    --facility-id=<integer>         The unique identifier for a facility (can be found via get_facilities method)
-    --blockaded                     Takes no argument. Add this flag if the planet is blockaded.
+    facility.py get_facilities
+    facility.py create
+    facility.py upgrade
+    facility.py downgrade
+    facility.py damage
+    facility.py restore_single
+    facility.py restore_all
 """
 
 from sys import argv
 from textwrap import dedent
 
+from InquirerPy import inquirer as iq
 from docopt import docopt
 
-from src.crud import facilityCrud, planetCrud, factionCrud
+from src.crud import facilityCrud, planetCrud
 from src.utils import db
-from src.utils.FacilityEnum import type_to_enum, type_to_str, level_to_str
+from src.utils.facilityUtils import type_to_str, level_to_str, all_facility_types
 
 
-def get_facilities(args):
-    database = args['db']
-    planet_name = args['--planet']
+def get_facilities(database):
+    planet_name = iq.text("Planet:").execute()
 
     facilities = facilityCrud.query_facilities_on_planet(database, planet_name).all()
 
@@ -48,11 +42,14 @@ def get_facilities(args):
         print(dedent(entry))
 
 
-def create_facility(args):
-    database = args['db']
-    planet_name = args['--planet']
-    facility_type = type_to_enum.get(args['--type'].lower())
-    is_blockaded = args['--blockaded']
+def create_facility(database):
+
+    planet_name = iq.text("Planet:").execute()
+    facility_type = iq.select(
+        message="Facility type:",
+        choices=all_facility_types
+    ).execute()
+    is_blockaded = iq.confirm("Blockaded?").execute()
 
     facility = {
         'planet': planet_name,
@@ -66,10 +63,10 @@ def create_facility(args):
         facilityCrud.restore_planet_facilities(database, planet_name)
 
 
-def upgrade_facility(args):
-    database = args['db']
-    facility_id = args['--facility-id']
-    is_blockaded = args['--blockaded']
+def upgrade_facility(database):
+
+    facility_id = iq.text("Facility id:").execute()
+    is_blockaded = iq.confirm("Blockaded?").execute()
 
     facilityCrud.upgrade_facility(database, facility_id)
 
@@ -80,30 +77,26 @@ def upgrade_facility(args):
         facilityCrud.restore_planet_facilities(database, planet_name)
 
 
-def downgrade_facility(args):
-    database = args['db']
-    facility_id = args['--facility-id']
+def downgrade_facility(database):
+    facility_id = iq.text("Facility id:").execute()
 
     facilityCrud.downgrade_facility(database, facility_id)
 
 
-def damage_facility(args):
-    database = args['db']
-    facility_id = args['--facility-id']
+def damage_facility(database):
+    facility_id = iq.text("Facility id:").execute()
 
     facilityCrud.damage_facility(database, facility_id)
 
 
-def restore_single_facility(args):
-    database = args['db']
-    facility_id = args['--facility-id']
+def restore_single_facility(database):
+    facility_id = iq.text("Facility id:").execute()
 
     facilityCrud.restore_single_facility(database, facility_id)
 
 
-def restore_planet_facilities(args):
-    database = args['db']
-    planet_name = args['--planet']
+def restore_planet_facilities(database):
+    planet_name = iq.text("Planet:").execute()
 
     facilityCrud.restore_planet_facilities(database, planet_name)
 
@@ -123,7 +116,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    kwargs['db'] = db.get_db()
+    db = db.get_db()
 
     method = argv[1]
-    switcher.get(method)(kwargs)
+    switcher.get(method)(db)
