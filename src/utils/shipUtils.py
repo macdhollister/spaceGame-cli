@@ -1,6 +1,19 @@
 from collections import Counter
 
 
+module_types = [
+    'armor_plating',
+    'command_bridge',
+    'ecm_suite',
+    'warp_drive',
+    'hangar_bay',
+    'marine_barracks',
+    'point_defense_battery',
+    'sensor_array',
+    'heavy_weapons_bay'
+]
+
+
 def get_ships_with_factions(ships):
     grouped_ships = group_ships_by_faction(ships)
 

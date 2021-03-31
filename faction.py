@@ -1,41 +1,31 @@
 """
 Usage:
-    faction.py generate_factions [--factions-file=<string>]
-    faction.py update_research --faction=<string> --module-name=<string> --tech-level=<integer>
-    faction.py update_resource --faction=<string> --resource=<string> --new-total=<integer>
-    faction.py spend_resource --faction=<string> --resource=<string> --amount=<integer>
-    faction.py update_all_resources [--faction=<string>]
+    faction.py generate_factions
+    faction.py update_research
+    faction.py update_resource
+    faction.py spend_resource
+    faction.py update_all_resources
     faction.py print_factions
-
-Options:
-    --factions-file=<string>        A json file containing faction information
-    --faction=<string>              Name of a faction
-    --module-name=<string>          The name of a ship module, underscores in place of spaces. Options are:
-                                    armor_plating, command_bridge, ecm_suite, warp_drive, hangar_bay,
-                                    marine_barracks, point_defense_battery, sensor_array, heavy_weapons_bay
-    --tech-level=<integer>          The desired tech level to set for a module
-    --resource=<string>             The name of a player's resource to update (mp, lp, or rp)
-    --new-total=<integer>           The new amount of a resource a player should have
-    --amount=<integer>              The amount of a resource that was spent
 """
 
 import json
 from sys import argv
+from textwrap import dedent
 
+from InquirerPy import inquirer as iq
 from docopt import docopt
 
 from src.crud import factionCrud
 from src.utils import db
+from src.utils.factionUtils import resource_types
+from src.utils.shipUtils import module_types
 
-from textwrap import dedent
 
-
-def generate_factions(args):
-    if args['--factions-file'] is None:
-        args['--factions-file'] = "game_resources/factions.json"
-
-    factions_file = args['--factions-file']
-    database = args['db']
+def generate_factions(database):
+    factions_file = "game_resources/factions.json"
+    use_default_path = iq.confirm("Use default path? (game_resources/factions.json)").execute()
+    if not use_default_path:
+        factions_file = iq.text("Factions file location:").execute()
 
     with open(factions_file) as f:
         factions_from_file = json.load(f)['factions']
@@ -66,45 +56,65 @@ def print_single_faction(f):
     print(dedent(entry))
 
 
-def print_factions(args):
-    database = args['db']
-
+def print_factions(database):
     faction_info = factionCrud.get_factions(database)
 
     for f in faction_info:
         print_single_faction(f)
 
 
-def update_research(args):
-    database = args['db']
-    faction_name = args['--faction']
-    module_name = args['--module-name']
-    tech_level = int(args['--tech-level'])
+def update_research(database):
+    faction_name = iq.select(
+        message="Faction name:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+    module_name = iq.select(
+        message="Module name:",
+        choices=module_types
+    ).execute()
+    tech_level = int(iq.text(
+        message="Tech level:",
+        validate=lambda level: 0 < int(level) < 10,
+        invalid_message="Research has a maximum of 10.",
+    ).execute())
 
     factionCrud.set_research(database, faction_name, module_name, tech_level)
 
 
-def update_resource(args):
-    faction_name = args['--faction']
-    resource_name = args['--resource']
-    new_total = int(args['--new-total'])
-    database = args['db']
+def update_resource(database):
+    faction_name = iq.select(
+        message="Faction name:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+    resource = iq.select(
+        message="Resource type:",
+        choices=resource_types
+    ).execute()
+    new_total = int(iq.text("New total:").execute())
 
-    factionCrud.set_resource(database, faction_name, resource_name, new_total)
+    factionCrud.set_resource(database, faction_name, resource, new_total)
 
 
-def spend_resource(args):
-    database = args['db']
-    faction_name = args['--faction']
-    resource = args['--resource']
-    amount = int(args['--amount'])
+def spend_resource(database):
+    faction_name = iq.select(
+        message="Faction name:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+    resource = iq.select(
+        message="Resource type:",
+        choices=resource_types
+    ).execute()
+    amount = int(iq.text("Amount spent:").execute())
 
     factionCrud.spend_resource(database, faction_name, resource, amount)
 
 
-def update_all_resources(args):
-    database = args['db']
-    faction_name = args['--faction']
+def update_all_resources(database):
+    do_update_all_factions = iq.confirm("Update all factions?").execute()
+    faction_name = None
+    if not do_update_all_factions:
+        faction_name = iq.text("Faction name:").execute()
+
     factions = list(map(lambda fac: fac.faction_name, factionCrud.get_factions(database)))\
         if faction_name is None\
         else [faction_name]
@@ -127,12 +137,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    kwargs['db'] = db.get_db()
-
-    # Accounting for faction name aliases as soon as possible
-    if kwargs['--faction'] is not None:
-        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
-        kwargs['--faction'] = db_faction.faction_name
+    db = db.get_db()
 
     method = argv[1]
-    switcher.get(method)(kwargs)
+    switcher.get(method)(db)

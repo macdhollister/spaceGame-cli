@@ -84,6 +84,10 @@ def get_factions(db: Session):
     return db.query(models.Faction).all()
 
 
+def get_faction_names(db: Session):
+    return list(map(lambda fac: fac.faction_name, get_factions(db)))
+
+
 def create_faction(db: Session, faction: schemas.FactionCreate):
     db_faction = models.Faction(
         faction_name=faction.faction_name,
