@@ -1,12 +1,3 @@
-"""
-Usage:
-    report.py generate_report --faction=<string>
-
-Options:
-    --faction=<string>      Name of a faction to generate a report for
-
-"""
-
 from sys import argv
 from textwrap import dedent
 
@@ -17,6 +8,8 @@ from src.utils import db
 from src.utils.facilityUtils import display_facilities
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
 from src.utils.shipUtils import ships_to_str_observed, group_ships_by_faction, ships_to_str_owned
+
+from InquirerPy import inquirer as iq
 
 
 def generate_resources_section(args):
@@ -160,20 +153,15 @@ def print_report(args):
     print(planets_section)
 
 
-switcher = {
-    'generate_report': print_report
-}
-
 if __name__ == '__main__':
-    if len(argv) == 1:
-        argv.append('-h')
-    kwargs = docopt(__doc__)
-    kwargs['db'] = db.get_db()
+    database = db.get_db()
 
-    # Accounting for faction name aliases as soon as possible
-    if kwargs['--faction'] is not None:
-        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
-        kwargs['--faction'] = db_faction.faction_name
+    kwargs = {
+        'db': database,
+        '--faction': iq.select(
+            message="Faction name:",
+            choices=factionCrud.get_faction_names(database)
+        ).execute()
+    }
 
-    method = argv[1]
-    switcher.get(method)(kwargs)
+    print_report(kwargs)
