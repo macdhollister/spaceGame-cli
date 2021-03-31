@@ -52,7 +52,7 @@ def spend_resource(db: Session, faction_name: str, resource_type: str, amount_sp
     if resource_type not in valid_resources:
         raise ValueError(f"Resource type must be one of {valid_resources}")
 
-    current_holdings = faction[resource_type]
+    current_holdings = getattr(faction, resource_type)
 
     if amount_spent > current_holdings:
         raise ValueError(f"Amount of {resource_type} spent ({amount_spent}) is higher than the current holdings ({current_holdings})")
