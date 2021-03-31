@@ -43,6 +43,23 @@ def update_resources(db: Session, faction_name: str):
     set_resource(db, faction_name, "lp", lp_income)
 
 
+def spend_resource(db: Session, faction_name: str, resource_type: str, amount_spent: int):
+    faction_query = query_faction_by_name(db, faction_name)
+    faction = faction_query.first()
+
+    # TODO: Pull this out into a util validation
+    valid_resources = ['mp', 'rp', 'lp']
+    if resource_type not in valid_resources:
+        raise ValueError(f"Resource type must be one of {valid_resources}")
+
+    current_holdings = faction[resource_type]
+
+    if amount_spent > current_holdings:
+        raise ValueError(f"Amount of {resource_type} spent ({amount_spent}) is higher than the current holdings ({current_holdings})")
+
+    set_resource(db, faction_name, resource_type, current_holdings - amount_spent)
+
+
 def set_resource(db: Session, faction_name: str, resource: str, new_total: int):
     valid_resources = ['mp', 'lp', 'rp']
     if resource.lower() not in valid_resources:

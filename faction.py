@@ -2,7 +2,8 @@
 Usage:
     faction.py generate_factions [--factions-file=<string>]
     faction.py update_research --faction=<string> --module-name=<string> --tech-level=<integer>
-    faction.py update_resource --faction=<string> --resource-name=<string> --new-total=<integer>
+    faction.py update_resource --faction=<string> --resource=<string> --new-total=<integer>
+    faction.py spend_resource --faction=<string> --resource=<string> --amount=<integer>
     faction.py update_all_resources [--faction=<string>]
     faction.py print_factions
 
@@ -13,8 +14,9 @@ Options:
                                     armor_plating, command_bridge, ecm_suite, warp_drive, hangar_bay,
                                     marine_barracks, point_defense_battery, sensor_array, heavy_weapons_bay
     --tech-level=<integer>          The desired tech level to set for a module
-    --resource-name=<string>        The name of a player's resource to update (mp, lp, or rp)
+    --resource=<string>             The name of a player's resource to update (mp, lp, or rp)
     --new-total=<integer>           The new amount of a resource a player should have
+    --amount=<integer>              The amount of a resource that was spent
 """
 
 import json
@@ -84,11 +86,20 @@ def update_research(args):
 
 def update_resource(args):
     faction_name = args['--faction']
-    resource_name = args['--resource-name']
+    resource_name = args['--resource']
     new_total = int(args['--new-total'])
     database = args['db']
 
     factionCrud.set_resource(database, faction_name, resource_name, new_total)
+
+
+def spend_resource(args):
+    database = args['db']
+    faction_name = args['--faction']
+    resource = args['--resource']
+    amount = int(args['--amount'])
+
+    factionCrud.spend_resource(database, faction_name, resource, amount)
 
 
 def update_all_resources(args):
@@ -107,6 +118,7 @@ switcher = {
     'print_factions': print_factions,
     'update_research': update_research,
     'update_resource': update_resource,
+    'spend_resource': spend_resource,
     'update_all_resources': update_all_resources
 }
 
