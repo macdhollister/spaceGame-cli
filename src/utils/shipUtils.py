@@ -44,6 +44,9 @@ def group_ships_by_faction(ships):
 
 
 def get_size(ship):
+    if ship.modules == "COLONY":
+        return 1
+
     return int(len(ship.modules) / 2)
 
 
