@@ -1,18 +1,12 @@
 """
 Usage:
-    planet.py generate_planets [--planets-file=<string>]
-    planet.py print_planets [--faction=<string>]
-    planet.py print_single_planet --planet=<string> [--faction=<string>]
-    planet.py claim --planet=<string> --faction=<string>
-    planet.py upgrade --planet=<string>
-    planet.py damage --planet=<string> [--damage-amount=<integer>]
-    planet.py restore --planet=<string>
-
-Options:
-    --planets-file=<string>     A json file containing planet information
-    --planet=<string>           The name of a planet
-    --faction=<string>          The name of a faction
-    --damage-amount=<integer>   The number of garrison points to remove from a planet. Defaults to 1.
+    planet.py generate_planets
+    planet.py print_planets
+    planet.py print_single_planet
+    planet.py claim
+    planet.py upgrade
+    planet.py damage
+    planet.py restore
 """
 
 import json
@@ -25,6 +19,8 @@ from src.crud import planetCrud, shipCrud, factionCrud
 from src.utils import db, planetUtils
 
 from textwrap import dedent
+
+from InquirerPy import inquirer as iq
 
 
 def get_planet_entry(database, planet, faction_name=None):
@@ -58,18 +54,33 @@ def print_planet(database, planet, faction_name=None):
     print(get_planet_entry(database, planet, faction_name))
 
 
-def print_single_planet(args):
-    planet_name = args['--planet']
-    faction_name = args['--faction']
-    database = args['db']
+def print_single_planet(database):
+    planet_name = iq.text("Planet:").execute()
+
+    print_for_faction = iq.confirm("Print for specific faction?").execute()
+
+    if print_for_faction:
+        faction_name = iq.select(
+            message="Faction:",
+            choices=factionCrud.get_faction_names(database)
+        ).execute()
+    else:
+        faction_name = None
 
     planet_info = planetCrud.get_planet_by_name(database, planet_name)
     print_planet(database, planet_info, faction_name)
 
 
-def print_planets(args):
-    database = args['db']
-    faction_name = args['--faction']
+def print_planets(database):
+    print_for_faction = iq.confirm("Print for specific faction?").execute()
+
+    if print_for_faction:
+        faction_name = iq.select(
+            message="Faction:",
+            choices=factionCrud.get_faction_names(database)
+        ).execute()
+    else:
+        faction_name = None
 
     planet_info = planetCrud.get_planets(database)
 
@@ -77,11 +88,11 @@ def print_planets(args):
         print_planet(database, p, faction_name)
 
 
-def generate_planets(args):
-    planets_file_path = args['--planets-file']
-
-    if planets_file_path is None:
-        planets_file_path = "game_resources/planets.json"
+def generate_planets(database):
+    planets_file_path = "game_resources/planets.json"
+    use_default_path = iq.confirm(f"Use default path? ({planets_file_path})").execute()
+    if not use_default_path:
+        planets_file_path = iq.text("Planets file location:").execute()
 
     errors = planetUtils.validate_planets_file(planets_file_path)
     if len(errors) > 0:
@@ -91,30 +102,31 @@ def generate_planets(args):
         planets_from_file = json.load(f)['planets']
 
     try:
-        planetCrud.build_map(args['db'], planets_from_file)
+        planetCrud.build_map(database, planets_from_file)
     # TODO better exception handling
     except Exception:
         print("Could not generate map.")
 
 
-def claim_planet(args):
-    planet_name = args['--planet']
-    faction_name = args['--faction']
-    database = args['db']
+def claim_planet(database):
+    planet_name = iq.text("Planet:").execute()
+    faction_name = iq.select(
+        message="Faction:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+
     planetCrud.claim_planet(database, planet_name, faction_name)
 
 
-def upgrade_planet(args):
-    database = args['db']
-    planet_name = args['--planet']
+def upgrade_planet(database):
+    planet_name = iq.text("Planet:").execute()
 
     planetCrud.upgrade_colony_type(database, planet_name)
 
 
-def damage_planet(args):
-    database = args['db']
-    planet_name = args['--planet']
-    amount_to_reduce = args['--damage-amount']
+def damage_planet(database):
+    planet_name = iq.text("Planet:").execute()
+    amount_to_reduce = int(iq.text("Garrison points lost:").execute())
 
     if amount_to_reduce is None:
         planetCrud.reduce_garrison_points(database, planet_name)
@@ -122,9 +134,8 @@ def damage_planet(args):
         planetCrud.reduce_garrison_points(database, planet_name, int(amount_to_reduce))
 
 
-def restore_planet(args):
-    database = args['db']
-    planet_name = args['--planet']
+def restore_planet(database):
+    planet_name = iq.text("Planet:").execute()
 
     planetCrud.restore_garrison_points(database, planet_name)
 
@@ -144,12 +155,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    kwargs['db'] = db.get_db()
-
-    # Accounting for faction name aliases as soon as possible
-    if kwargs['--faction'] is not None:
-        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
-        kwargs['--faction'] = db_faction.faction_name
+    db = db.get_db()
 
     method = argv[1]
-    switcher.get(method)(kwargs)
+    switcher.get(method)(db)

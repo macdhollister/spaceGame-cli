@@ -55,7 +55,11 @@ def get_modules_from_str(modules_str):
 
 
 def get_ships(db: Session):
-    return db.query(models.Ship).all()
+    return get_ships_filtered(db, {})
+
+
+def get_ships_filtered(db: Session, filters: dict):
+    return db.query(models.Ship).filter_by(**filters).all()
 
 
 def get_visible_ships_on_planet(db: Session, planet_name: str, faction_name: str):
@@ -93,11 +97,11 @@ def get_ships_on_planet(db: Session, planet_name: str):
     return db.query(models.Ship).filter_by(location=planet_name).all()
 
 
-def get_ship_by_id(db: Session, ship_id: int):
+def get_ship_by_id(db: Session, ship_id: str):
     return db.query(models.Ship).filter_by(id=ship_id).first()
 
 
-def move_ship(db: Session, ship_id: int, destination_name: str):
+def move_ship(db: Session, ship_id: str, destination_name: str):
     ship = db.query(models.Ship).filter_by(id=ship_id)
     ship.update({'location': destination_name})
     db.commit()
@@ -137,12 +141,12 @@ def create_ship_from_dict(db: Session, ship):
     create_ship(db, schemas.ShipCreate.parse_obj(ship))
 
 
-def restore_ship_hp_without_commit(db: Session, ship_id):
+def restore_ship_hp_without_commit(db: Session, ship_id: str):
     max_hp = get_ship_by_id(db, ship_id).max_hp
     db.query(models.Ship).filter_by(id=ship_id).update({'hit_points': max_hp})
 
 
-def restore_ship_hp(db: Session, ship_id: int):
+def restore_ship_hp(db: Session, ship_id: str):
     restore_ship_hp_without_commit(db, ship_id)
     db.commit()
 
@@ -156,7 +160,7 @@ def restore_all(db: Session):
     db.commit()
 
 
-def damage_ship(db: Session, ship_id: int, damage: int):
+def damage_ship(db: Session, ship_id: str, damage: int):
     ship_to_damage = get_ship_by_id(db, ship_id)
     damaged_hp = ship_to_damage.hit_points - damage
 
@@ -167,7 +171,7 @@ def damage_ship(db: Session, ship_id: int, damage: int):
         db.commit()
 
 
-def destroy_ship(db: Session, ship_id: int):
+def destroy_ship(db: Session, ship_id: str):
     ship_to_delete = get_ship_by_id(db, ship_id)
 
     db.query(models.Ship).filter_by(id=ship_id).delete()

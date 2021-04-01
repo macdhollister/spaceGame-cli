@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src import models, schemas
 from src.crud import shipCrud, factionCrud
 from src.utils.colonyUtils import ColonyType
-from src.utils.FacilityEnum import FacilityType, FacilityLevel
+from src.utils.facilityUtils import FacilityType, FacilityLevel
 from src.utils.planetUtils import special_str_to_enum, SpecialPlanet
 
 
@@ -117,6 +117,12 @@ def planet_visible_by_faction(db: Session, planet_name: str, faction_name: str):
     faction_has_ship = faction_name in list(map(lambda ship: ship.owner, all_ships_on_planet))
 
     return faction_owns_planet | faction_has_ship
+
+
+def get_connection_names(database, planet_name):
+    connections = get_planet_by_name(database, planet_name).connections
+
+    return list(map(lambda planet: planet.name, connections))
 
 
 # ---------- FACILITIES ----------

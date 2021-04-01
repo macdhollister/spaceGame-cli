@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 
 from src import models, schemas
-from src.utils.FacilityEnum import FacilityType, FacilityLevel
+from src.utils.facilityUtils import FacilityType, FacilityLevel
 
 from src.crud import planetCrud
 
 import copy
 
 
-def query_facility_by_id(db: Session, facility_id: int):
+def query_facility_by_id(db: Session, facility_id: str):
     return db.query(models.Facility).filter_by(id=facility_id)
 
 
@@ -38,7 +38,7 @@ def create_facility(db: Session, facility: schemas.FacilityCreate):
     db.commit()
 
 
-def upgrade_facility(db: Session, facility_id: int):
+def upgrade_facility(db: Session, facility_id: str):
     facility_query = query_facility_by_id(db, facility_id)
     facility = facility_query.first()
     facility_level = facility.level
@@ -54,7 +54,7 @@ def upgrade_facility(db: Session, facility_id: int):
     db.commit()
 
 
-def downgrade_facility(db: Session, facility_id: int):
+def downgrade_facility(db: Session, facility_id: str):
     facility_query = query_facility_by_id(db, facility_id)
     facility = facility_query.first()
     facility_level = facility.level
@@ -71,7 +71,7 @@ def downgrade_facility(db: Session, facility_id: int):
     db.commit()
 
 
-def damage_facility(db: Session, facility_id: int):
+def damage_facility(db: Session, facility_id: str):
     facility = query_facility_by_id(db, facility_id).first()
     current_shields = facility.shields
 
@@ -82,7 +82,7 @@ def damage_facility(db: Session, facility_id: int):
     db.commit()
 
 
-def destroy_facility(db: Session, facility_id: int):
+def destroy_facility(db: Session, facility_id: str):
     facility_to_delete = query_facility_by_id(db, facility_id).first()
     facility_copy = copy.deepcopy(facility_to_delete)
 
@@ -124,7 +124,7 @@ def restore_planet_facilities(db: Session, planet_name: str):
     db.commit()
 
 
-def restore_single_facility(db: Session, facility_id: int):
+def restore_single_facility(db: Session, facility_id: str):
     facility = query_facility_by_id(db, facility_id).all()
     total_shields = get_planet_shield_points(db, facility[0].planet)
 

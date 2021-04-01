@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src import models
 from src import schemas
 from src.crud import planetCrud
-from src.utils.FacilityEnum import FacilityType
+from src.utils.facilityUtils import FacilityType
 
 
 def get_resource_income(db: Session, faction_name: str, resource_type: str):
@@ -82,6 +82,10 @@ def query_faction_by_name(db: Session, faction_name: str):
 
 def get_factions(db: Session):
     return db.query(models.Faction).all()
+
+
+def get_faction_names(db: Session):
+    return list(map(lambda fac: fac.faction_name, get_factions(db)))
 
 
 def create_faction(db: Session, faction: schemas.FactionCreate):
