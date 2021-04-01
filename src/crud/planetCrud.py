@@ -44,20 +44,32 @@ def query_planet_by_name(db: Session, planet_name: str):
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
-    planet = db.query(models.Planet).filter_by(name=planet_name)
-    if planet.first().owner:
-        reassign_planet(db, planet, faction_name)
+    planet_query = db.query(models.Planet).filter_by(name=planet_name)
+    if planet_query.first().owner:
+        reassign_planet(db, planet_query, faction_name)
     else:
-        colonize_planet(db, planet, faction_name)
+        colonize_planet(db, planet_query, faction_name)
 
 
-def reassign_planet(db: Session, planet, faction_name: str):
-    planet.update({'owner': faction_name})
+def reassign_planet(db: Session, planet_query, faction_name: str):
+    planet_query.update({'owner': faction_name})
     db.commit()
 
 
-def colonize_planet(db: Session, planet, faction_name: str):
-    planet.update({'owner': faction_name, 'colony_size': ColonyType.COLONY})
+def colonize_planet(db: Session, planet_query, faction_name: str):
+    ship_query_filters = {
+        'owner': faction_name,
+        'modules': 'COLONY'
+    }
+
+    ship = shipCrud.query_ships_filtered(db, ship_query_filters).first()
+
+    if ship is None:
+        raise ValueError(f"{faction_name} does not have a colony ship on this planet.")
+    else:
+        shipCrud.destroy_ship(db, ship.id)
+
+    planet_query.update({'owner': faction_name, 'colony_size': ColonyType.COLONY})
     db.commit()
 
 

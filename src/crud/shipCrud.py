@@ -55,11 +55,11 @@ def get_modules_from_str(modules_str):
 
 
 def get_ships(db: Session):
-    return get_ships_filtered(db, {})
+    return query_ships_filtered(db, {}).all()
 
 
-def get_ships_filtered(db: Session, filters: dict):
-    return db.query(models.Ship).filter_by(**filters).all()
+def query_ships_filtered(db: Session, filters: dict):
+    return db.query(models.Ship).filter_by(**filters)
 
 
 def get_visible_ships_on_planet(db: Session, planet_name: str, faction_name: str):

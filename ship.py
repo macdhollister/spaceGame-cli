@@ -92,7 +92,7 @@ def get_all(database):
             choices=factionCrud.get_faction_names(database)
         ).execute()
 
-    all_ships = shipCrud.get_ships_filtered(database, query_filters)
+    all_ships = shipCrud.query_ships_filtered(database, query_filters).all()
     for ship in all_ships:
         display = f"""\
                 id: {ship.id}

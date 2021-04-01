@@ -4,6 +4,7 @@ Usage:
     planet.py print_planets
     planet.py print_single_planet
     planet.py claim
+    planet.py colonize
     planet.py upgrade
     planet.py damage
     planet.py restore
@@ -118,6 +119,10 @@ def claim_planet(database):
     planetCrud.claim_planet(database, planet_name, faction_name)
 
 
+def colonize_planet(database):
+    pass
+
+
 def upgrade_planet(database):
     planet_name = iq.text("Planet:").execute()
 
@@ -145,6 +150,7 @@ switcher = {
     'print_planets': print_planets,
     'print_single_planet': print_single_planet,
     'claim': claim_planet,
+    'colonize': colonize_planet,
     'upgrade': upgrade_planet,
     'damage': damage_planet,
     'restore': restore_planet
