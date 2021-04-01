@@ -44,12 +44,16 @@ def destroy_ship(database):
 
 def move_ship(database):
     origin_location = iq.text("From:").execute()
-    ship_ids_on_origin = list(map(lambda ship: ship.id, shipCrud.get_ships_on_planet(database, origin_location)))
 
-    ship_id = iq.select(
+    ships_on_origin = shipCrud.get_ships_on_planet(database, origin_location)
+    ship_ids_on_origin = list(map(lambda ship: f"{ship.id}, modules: {ship.modules}, owner: {ship.owner}", ships_on_origin))
+
+    ship_selection = iq.select(
         message="Ship:",
         choices=ship_ids_on_origin
     ).execute()
+
+    ship_id = ship_selection.split(',')[0]
 
     origin_connections = planetCrud.get_connection_names(database, origin_location)
 
