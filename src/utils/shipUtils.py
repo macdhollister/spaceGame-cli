@@ -1,5 +1,6 @@
 from collections import Counter
 
+from src.crud import shipCrud
 
 module_types = [
     'armor_plating',
@@ -12,6 +13,14 @@ module_types = [
     'sensor_array',
     'heavy_weapons_bay'
 ]
+
+
+def get_ship_choices_on_planet(database, planet_name):
+    ships = shipCrud.get_ships_on_planet(database, planet_name)
+    options = []
+
+    for ship in ships:
+        options.append(ship_to_str_full(ship))
 
 
 def get_ships_with_factions(ships):
@@ -38,8 +47,12 @@ def get_size(ship):
     return int(len(ship.modules) / 2)
 
 
+def ship_to_str_full(ship):
+    return f"<id: {ship.id}, {ship.modules}>"
+
+
 def ships_to_str_owned(ship_list):
-    ships = list(map(lambda ship: f"<id: {ship.id}, {ship.modules}>", ship_list))
+    ships = list(map(ship_to_str_full, ship_list))
     ships.insert(0, "Owned Ships:")
 
     return ships

@@ -1,87 +1,98 @@
 """
 Usage:
-    ship.py create --planet=<string> --faction=<string> --modules=<string>
-    ship.py destroy --ship-id=<integer>
-    ship.py damage --ship-id=<integer> [--damage=<integer>]
-    ship.py restore --ship-id=<integer>
+    ship.py create
+    ship.py destroy
+    ship.py damage
+    ship.py restore
     ship.py restore_all
-    ship.py move --ship-id=<integer> --destination=<string>
+    ship.py move
     ship.py get_all
-
-Options:
-    --planet=<string>       The planet on which to create the ship
-    --faction=<string>      The owner of the ship
-    --modules=<string>      The modules on the ship. Should match the regex ^([ABCDHMPSWabcdhmpsw][1-9]){1,10}$
-    --ship-id=<integer>     The unique identifier for a ship
-    --destination=<string>  The location a ship is to be moved
-    --damage=<integer>      (optional) Amount of damage to inflict to a ship. Defaults to 1 damage.
 """
 
 from sys import argv
-
-from docopt import docopt
-
-from src.crud import shipCrud, factionCrud
-from src.utils import db
-
 from textwrap import dedent
 
+from InquirerPy import inquirer as iq
+from docopt import docopt
 
-def create_ship(args):
-    planet = args['--planet']
-    faction = args['--faction']
-    modules = args['--modules']
-    database = args['db']
+from src.crud import shipCrud, factionCrud, planetCrud
+from src.utils import db
+
+
+def create_ship(database):
+    planet_name = iq.text("Planet:").execute()
+    faction_name = iq.select(
+        message="Faction:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+    modules = iq.text("Modules:").execute()
 
     ship = {
-        'owner': faction,
+        'owner': faction_name,
         'modules': modules,
-        'location': planet
+        'location': planet_name
     }
 
     shipCrud.create_ship_from_dict(database, ship)
 
 
-def destroy_ship(args):
-    ship_id = args['--ship-id']
-    database = args['db']
+def destroy_ship(database):
+    ship_id = iq.text("Ship id:").execute()
 
     shipCrud.destroy_ship(database, ship_id)
 
 
-def move_ship(args):
-    destination = args['--destination']
-    ship_id = args['--ship-id']
-    database = args['db']
+def move_ship(database):
+    origin_location = iq.text("From:").execute()
+    ship_ids_on_origin = list(map(lambda ship: ship.id, shipCrud.get_ships_on_planet(database, origin_location)))
+
+    ship_id = iq.select(
+        message="Ship:",
+        choices=ship_ids_on_origin
+    ).execute()
+
+    origin_connections = planetCrud.get_connection_names(database, origin_location)
+
+    destination = iq.select(
+        message="Destination:",
+        choices=origin_connections
+    ).execute()
 
     shipCrud.move_ship(database, ship_id, destination)
 
 
-def damage_ship(args):
-    ship_id = args['--ship-id']
-    damage = args['--damage'] if args['--damage'] is not None else 1
-    database = args['db']
+def damage_ship(database):
+    ship_id = iq.text("Ship id:").execute()
+    damage = int(iq.text("Damage:").execute())
 
-    shipCrud.damage_ship(database, ship_id, int(damage))
+    shipCrud.damage_ship(database, ship_id, damage)
 
 
-def restore_ship(args):
-    ship_id = args['--ship-id']
-    database = args['db']
+def restore_ship(database):
+    ship_id = iq.text("Ship id:").execute()
 
     shipCrud.restore_ship_hp(database, ship_id)
 
 
-def restore_all(args):
-    database = args['db']
-
+def restore_all(database):
     shipCrud.restore_all(database)
 
 
-def get_all(args):
-    database = args['db']
+def get_all(database):
+    query_filters = {}
 
-    all_ships = shipCrud.get_ships(database)
+    do_filter_by_planet = iq.confirm("Filter by planet?").execute()
+    if do_filter_by_planet:
+        query_filters['location'] = iq.text("Planet:").execute()
+
+    do_filter_by_faction = iq.confirm("Filter by faction?").execute()
+    if do_filter_by_faction:
+        query_filters['owner'] = iq.select(
+            message="Faction:",
+            choices=factionCrud.get_faction_names(database)
+        ).execute()
+
+    all_ships = shipCrud.get_ships_filtered(database, query_filters)
     for ship in all_ships:
         display = f"""\
                 id: {ship.id}
@@ -90,6 +101,7 @@ def get_all(args):
                 location: {ship.location}
                 stealth level: {ship.stealth_level}
                 detection level: {ship.detection_level}
+                hit points: {ship.hit_points}
                 
                 """
         print(dedent(display))
@@ -110,12 +122,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    kwargs['db'] = db.get_db()
-
-    # Accounting for faction name aliases as soon as possible
-    if kwargs['--faction'] is not None:
-        db_faction = factionCrud.query_faction_by_name(kwargs['db'], kwargs['--faction']).first()
-        kwargs['--faction'] = db_faction.faction_name
+    db = db.get_db()
 
     method = argv[1]
-    switcher.get(method)(kwargs)
+    switcher.get(method)(db)
