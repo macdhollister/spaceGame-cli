@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 
 from src import models, schemas
-from src.crud import shipCrud, factionCrud
+from src.crud import shipCrud
 from src.utils.colonyUtils import ColonyType
 from src.utils.facilityUtils import FacilityType, FacilityLevel
-from src.utils.planetUtils import special_str_to_enum, SpecialPlanet
+from src.utils.planetUtils import SpecialPlanet
 
 
 def get_planets(db: Session):
@@ -16,7 +16,7 @@ def get_planets_by_faction(db: Session, faction_name: str):
     Returns an object containing planets owned by the given faction
     and planets observed by (but not owned by) the given faction
     """
-    owned_planets = db.query(models.Planet).filter_by(owner=faction_name).all()
+    owned_planets = db.query(models.Planet).filter_by(owner=faction_name).order_by(models.Planet.name.asc()).all()
 
     all_planets = get_planets(db)
     unowned_planets = [planet for planet in all_planets if planet not in owned_planets]
