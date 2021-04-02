@@ -17,7 +17,7 @@ from docopt import docopt
 
 from src.crud import shipCrud, factionCrud, planetCrud
 from src.utils import db
-from src.utils.shipUtils import module_types, module_abbreviations
+from src.utils.shipUtils import module_abbreviations, module_options
 
 
 def create_ship(database):
@@ -60,7 +60,7 @@ def create_ship(database):
     for i in range(ship_size):
         module_type = iq.select(
             message="Module type:",
-            choices=module_types
+            choices=module_options
         ).execute()
 
         module_abbreviation = module_abbreviations.get(module_type)

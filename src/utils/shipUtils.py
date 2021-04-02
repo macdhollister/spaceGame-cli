@@ -28,6 +28,19 @@ module_abbreviations = {
 }
 
 
+module_options = [
+    {"name": '(A) Armor Plating', "value": 'armor_plating'},
+    {"name": '(B) Command Bridge', "value": 'command_bridge'},
+    {"name": '(C) ECM Suite', "value": 'ecm_suite'},
+    {"name": '(D) Warp Drive', "value": 'warp_drive'},
+    {"name": '(H) Hangar Bay', "value": 'hangar_bay'},
+    {"name": '(M) Marine Barracks', "value": 'marine_barracks'},
+    {"name": '(P) Point Defense Battery', "value": 'point_defense_battery'},
+    {"name": '(S) Sensor Array', "value": 'sensor_array'},
+    {"name": '(W) Heavy Weapons Bay', "value": 'heavy_weapons_bay'}
+]
+
+
 def get_ship_choices_on_planet(database, planet_name):
     ships = shipCrud.get_ships_on_planet(database, planet_name)
     options = []
