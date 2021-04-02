@@ -95,8 +95,8 @@ def ships_to_str_observed(ship_list):
     ship_types = list(counts.keys())
     ship_types.sort()
 
-    display = ""
+    ships_to_display = []
     for ship_type in ship_types:
-        display += f"class {ship_type} x{counts[ship_type]}"
+        ships_to_display.append(f"class {ship_type} x{counts[ship_type]}")
 
-    return display
+    return ', '.join(ships_to_display)

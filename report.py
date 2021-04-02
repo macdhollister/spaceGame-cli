@@ -1,15 +1,12 @@
-from sys import argv
 from textwrap import dedent
 
-from docopt import docopt
+from InquirerPy import inquirer as iq
 
 from src.crud import shipCrud, planetCrud, factionCrud
 from src.utils import db
-from src.utils.facilityUtils import display_facilities
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
+from src.utils.facilityUtils import display_facilities
 from src.utils.shipUtils import ships_to_str_observed, group_ships_by_faction, ships_to_str_owned
-
-from InquirerPy import inquirer as iq
 
 
 def generate_resources_section(args):
@@ -103,7 +100,7 @@ def get_planet_entry(database, planet, faction_name):
         owned_ships_display = '\n               '.join(ships_to_str_owned(owned_ships))
 
     # Owned ships have been removed from 'grouped_ships' via the call to pop() above
-    observed_ships_display = '\n               '.join([f"{faction}: {ships_to_str_observed(grouped_ships[faction])}" for faction in grouped_ships.keys()])
+    observed_ships_display = '\n               '.join(["Observed Ships:"] + [f"{faction}: {ships_to_str_observed(grouped_ships[faction])}" for faction in grouped_ships.keys()])
 
     return f"""
            {planet.name} ({size_map[planet.size]}-{planet.resources}) {col_size_display}
@@ -154,13 +151,13 @@ def print_report(args):
 
 
 if __name__ == '__main__':
-    database = db.get_db()
+    db = db.get_db()
 
     kwargs = {
-        'db': database,
+        'db': db,
         '--faction': iq.select(
             message="Faction name:",
-            choices=factionCrud.get_faction_names(database)
+            choices=factionCrud.get_faction_names(db)
         ).execute()
     }
 
