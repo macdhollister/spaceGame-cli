@@ -15,6 +15,19 @@ module_types = [
 ]
 
 
+module_abbreviations = {
+    'armor_plating': 'A',
+    'command_bridge': 'B',
+    'ecm_suite': 'C',
+    'warp_drive': 'D',
+    'hangar_bay': 'H',
+    'marine_barracks': 'M',
+    'point_defense_battery': 'P',
+    'sensor_array': 'S',
+    'heavy_weapons_bay': 'W'
+}
+
+
 def get_ship_choices_on_planet(database, planet_name):
     ships = shipCrud.get_ships_on_planet(database, planet_name)
     options = []

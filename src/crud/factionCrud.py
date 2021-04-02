@@ -27,6 +27,11 @@ def set_research(db: Session, faction_name: str, module_name: str, tech_level: i
     return faction_query
 
 
+def get_research(db: Session, faction_name: str):
+    faction_query = query_faction_by_name(db, faction_name)
+    return faction_query.first().research
+
+
 def update_resources(db: Session, faction_name: str):
     faction_query = query_faction_by_name(db, faction_name)
     faction = faction_query.first()
