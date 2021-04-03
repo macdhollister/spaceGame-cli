@@ -9,7 +9,6 @@ from src.schemas.planet import Planet
 
 class FactionBase(BaseModel):
     faction_name: str
-    faction_alias: str = ""
 
 
 class FactionCreate(FactionBase):

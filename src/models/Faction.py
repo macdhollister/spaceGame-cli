@@ -10,7 +10,6 @@ class Faction(Base):
 
     id = Column(String, primary_key=True, index=True, default=generate_id)
     faction_name = Column(String, unique=True, index=True)
-    faction_alias = Column(String, unique=True, index=True, default="")
     mp = Column(Integer, default=40)
     rp = Column(Integer, default=25)
     lp = Column(Integer, default=2)

@@ -78,10 +78,6 @@ def set_resource(db: Session, faction_name: str, resource: str, new_total: int):
 
 def query_faction_by_name(db: Session, faction_name: str):
     query = db.query(models.Faction).filter_by(faction_name=faction_name)
-
-    if query.first() is None:
-        query = db.query(models.Faction).filter_by(faction_alias=faction_name)
-
     return query
 
 
@@ -95,8 +91,7 @@ def get_faction_names(db: Session):
 
 def create_faction(db: Session, faction: schemas.FactionCreate):
     db_faction = models.Faction(
-        faction_name=faction.faction_name,
-        faction_alias=faction.faction_alias
+        faction_name=faction.faction_name
     )
     db.add(db_faction)
     db.commit()
