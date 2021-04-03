@@ -8,6 +8,7 @@
     },
     {
       "name": "planet_b",
+      "special": "Logistics Hub",
       "size": "m",
       "resources": 3,
       "connections": ["planet_a", "planet_c"]
