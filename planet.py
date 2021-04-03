@@ -17,7 +17,7 @@ from docopt import docopt
 
 from src.utils.colonyUtils import colony_type_to_str
 from src.crud import planetCrud, shipCrud, factionCrud
-from src.utils import db, planetUtils
+from src.utils import db, planetUtils, promptUtils
 
 from textwrap import dedent
 
@@ -56,7 +56,7 @@ def print_planet(database, planet, faction_name=None):
 
 
 def print_single_planet(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
 
     print_for_faction = iq.confirm("Print for specific faction?").execute()
 
@@ -110,7 +110,7 @@ def generate_planets(database):
 
 
 def claim_planet(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
     faction_name = iq.select(
         message="Faction:",
         choices=factionCrud.get_faction_names(database)
@@ -124,13 +124,13 @@ def colonize_planet(database):
 
 
 def upgrade_planet(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
 
     planetCrud.upgrade_colony_type(database, planet_name)
 
 
 def damage_planet(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
     amount_to_reduce = int(iq.text("Garrison points lost:").execute())
 
     if amount_to_reduce is None:
@@ -140,7 +140,7 @@ def damage_planet(database):
 
 
 def restore_planet(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
 
     planetCrud.restore_garrison_points(database, planet_name)
 

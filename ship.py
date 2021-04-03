@@ -16,14 +16,14 @@ from InquirerPy import inquirer as iq
 from docopt import docopt
 
 from src.crud import shipCrud, factionCrud, planetCrud
-from src.utils import db
+from src.utils import db, promptUtils
 from src.utils.shipUtils import module_abbreviations, module_options
 
 
 def create_ship(database):
     # TODO: Clean up this method, pull out utility methods
 
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
     faction_name = iq.select(
         message="Faction:",
         choices=factionCrud.get_faction_names(database)
@@ -131,7 +131,7 @@ def get_all(database):
 
     do_filter_by_planet = iq.confirm("Filter by planet?").execute()
     if do_filter_by_planet:
-        query_filters['location'] = iq.text("Planet:").execute()
+        query_filters['location'] = promptUtils.planet_prompt(database)
 
     do_filter_by_faction = iq.confirm("Filter by faction?").execute()
     if do_filter_by_faction:

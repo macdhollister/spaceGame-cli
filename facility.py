@@ -16,12 +16,12 @@ from InquirerPy import inquirer as iq
 from docopt import docopt
 
 from src.crud import facilityCrud, planetCrud
-from src.utils import db
+from src.utils import db, promptUtils
 from src.utils.facilityUtils import type_to_str, level_to_str, all_facility_types
 
 
 def get_facilities(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
 
     facilities = facilityCrud.query_facilities_on_planet(database, planet_name).all()
 
@@ -44,7 +44,7 @@ def get_facilities(database):
 
 def create_facility(database):
 
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
     facility_type = iq.select(
         message="Facility type:",
         choices=all_facility_types
@@ -96,7 +96,7 @@ def restore_single_facility(database):
 
 
 def restore_planet_facilities(database):
-    planet_name = iq.text("Planet:").execute()
+    planet_name = promptUtils.planet_prompt(database)
 
     facilityCrud.restore_planet_facilities(database, planet_name)
 

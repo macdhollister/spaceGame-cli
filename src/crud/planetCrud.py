@@ -11,6 +11,10 @@ def get_planets(db: Session):
     return db.query(models.Planet).all()
 
 
+def get_planet_names(db: Session):
+    return list(map(lambda planet: planet.name, get_planets(db)))
+
+
 def get_planets_by_faction(db: Session, faction_name: str):
     """
     Returns an object containing planets owned by the given faction
