@@ -48,28 +48,39 @@ def query_planet_by_name(db: Session, planet_name: str):
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
+    """Assigns an unowned planet to a player. No validations and no colony ship requied."""
     planet_query = db.query(models.Planet).filter_by(name=planet_name)
-    if planet_query.first().owner:
-        reassign_planet(db, planet_query, faction_name)
-    else:
-        colonize_planet(db, planet_query, faction_name)
 
-
-def reassign_planet(db: Session, planet_query, faction_name: str):
     planet_query.update({'owner': faction_name})
     db.commit()
 
 
-def colonize_planet(db: Session, planet_query, faction_name: str):
+def reassign_planet(db: Session, planet_name, faction_name: str):
+    """Reassigns an owned planet to a new player."""
+    planet_query = query_planet_by_name(db, planet_name)
+
+    if not planet_query.first().owner:
+        raise ValueError("Planet not owned. Please use 'claim' or 'colonize'.")
+
+    print(f"Planet reassigned from {planet_query.first().owner} to {faction_name}")
+    planet_query.update({'owner': faction_name})
+    db.commit()
+
+
+def colonize_planet(db: Session, planet_name, faction_name: str):
+    """Assigns an unowned planet to a player. Requires a colony ship in orbit, which is consumed."""
+    planet_query = query_planet_by_name(db, planet_name)
+
     ship_query_filters = {
         'owner': faction_name,
+        'location': planet_name,
         'modules': 'COLONY'
     }
 
     ship = shipCrud.query_ships_filtered(db, ship_query_filters).first()
 
     if ship is None:
-        raise ValueError(f"{faction_name} does not have a colony ship on this planet.")
+        raise ValueError(f"{faction_name} does not have a colony ship on {planet_name}.")
     else:
         shipCrud.destroy_ship(db, ship.id)
 

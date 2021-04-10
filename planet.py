@@ -5,6 +5,7 @@ Usage:
     planet.py print_single_planet
     planet.py claim
     planet.py colonize
+    planet.py reassign
     planet.py upgrade
     planet.py damage
     planet.py restore
@@ -110,6 +111,10 @@ def generate_planets(database):
 
 
 def claim_planet(database):
+    confirmation = iq.confirm("This method should only be used for game setup. Otherwise, use 'colonize' or 'reassign'. Continue?").execute()
+    if not confirmation:
+        return
+
     planet_name = promptUtils.planet_prompt(database)
     faction_name = iq.select(
         message="Faction:",
@@ -120,7 +125,23 @@ def claim_planet(database):
 
 
 def colonize_planet(database):
-    pass
+    planet_name = promptUtils.planet_prompt(database)
+    faction_name = iq.select(
+        message="Faction:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+
+    planetCrud.colonize_planet(database, planet_name, faction_name)
+
+
+def reassign_planet(database):
+    planet_name = promptUtils.planet_prompt(database)
+    faction_name = iq.select(
+        message="Faction:",
+        choices=factionCrud.get_faction_names(database)
+    ).execute()
+
+    planetCrud.reassign_planet(database, planet_name, faction_name)
 
 
 def upgrade_planet(database):
@@ -151,6 +172,7 @@ switcher = {
     'print_single_planet': print_single_planet,
     'claim': claim_planet,
     'colonize': colonize_planet,
+    'reassign': reassign_planet,
     'upgrade': upgrade_planet,
     'damage': damage_planet,
     'restore': restore_planet
