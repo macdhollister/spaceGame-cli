@@ -7,7 +7,7 @@
 - A file named `.env` is created at the base directory of this repo with the following entry (replace `database_name` with whatever you want the database file to be called)  
 `DATABASE_URL=sqlite:///database_name.db`
 
-##Scripts
+## Scripts
 
 Each script can be run using the following pattern:
 ```
