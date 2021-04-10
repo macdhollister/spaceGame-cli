@@ -17,6 +17,7 @@ from docopt import docopt
 
 from src.crud import shipCrud, factionCrud, planetCrud
 from src.utils import db, promptUtils
+from src.utils.promptUtils import faction_prompt
 from src.utils.shipUtils import module_abbreviations, module_options
 
 
@@ -24,10 +25,7 @@ def create_ship(database):
     # TODO: Clean up this method, pull out utility methods
 
     planet_name = promptUtils.planet_prompt(database)
-    faction_name = iq.select(
-        message="Faction:",
-        choices=factionCrud.get_faction_names(database)
-    ).execute()
+    faction_name = faction_prompt(database)
 
     faction_research = factionCrud.get_research(database, faction_name)
 
@@ -135,10 +133,7 @@ def get_all(database):
 
     do_filter_by_faction = iq.confirm("Filter by faction?").execute()
     if do_filter_by_faction:
-        query_filters['owner'] = iq.select(
-            message="Faction:",
-            choices=factionCrud.get_faction_names(database)
-        ).execute()
+        query_filters['owner'] = promptUtils.faction_prompt(database)
 
     all_ships = shipCrud.query_ships_filtered(database, query_filters).all()
     for ship in all_ships:

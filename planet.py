@@ -62,10 +62,7 @@ def print_single_planet(database):
     print_for_faction = iq.confirm("Print for specific faction?").execute()
 
     if print_for_faction:
-        faction_name = iq.select(
-            message="Faction:",
-            choices=factionCrud.get_faction_names(database)
-        ).execute()
+        faction_name = promptUtils.faction_prompt(database)
     else:
         faction_name = None
 
@@ -77,10 +74,7 @@ def print_planets(database):
     print_for_faction = iq.confirm("Print for specific faction?").execute()
 
     if print_for_faction:
-        faction_name = iq.select(
-            message="Faction:",
-            choices=factionCrud.get_faction_names(database)
-        ).execute()
+        faction_name = promptUtils.faction_prompt(database)
     else:
         faction_name = None
 
@@ -116,30 +110,21 @@ def claim_planet(database):
         return
 
     planet_name = promptUtils.planet_prompt(database)
-    faction_name = iq.select(
-        message="Faction:",
-        choices=factionCrud.get_faction_names(database)
-    ).execute()
+    faction_name = promptUtils.faction_prompt(database)
 
     planetCrud.claim_planet(database, planet_name, faction_name)
 
 
 def colonize_planet(database):
     planet_name = promptUtils.planet_prompt(database)
-    faction_name = iq.select(
-        message="Faction:",
-        choices=factionCrud.get_faction_names(database)
-    ).execute()
+    faction_name = promptUtils.faction_prompt(database)
 
     planetCrud.colonize_planet(database, planet_name, faction_name)
 
 
 def reassign_planet(database):
     planet_name = promptUtils.planet_prompt(database)
-    faction_name = iq.select(
-        message="Faction:",
-        choices=factionCrud.get_faction_names(database)
-    ).execute()
+    faction_name = promptUtils.faction_prompt(database)
 
     planetCrud.reassign_planet(database, planet_name, faction_name)
 
