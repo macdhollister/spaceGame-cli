@@ -87,7 +87,7 @@ def destroy_ship(database):
 
 
 def move_ship(database):
-    origin_location = iq.text("From:").execute()
+    origin_location = promptUtils.planet_prompt(database, "From:")
 
     ships_on_origin = shipCrud.get_ships_on_planet(database, origin_location)
     ship_ids_on_origin = list(map(lambda ship: f"{ship.id}, modules: {ship.modules}, owner: {ship.owner}", ships_on_origin))
