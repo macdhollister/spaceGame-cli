@@ -141,6 +141,12 @@ def create_ship_from_dict(db: Session, ship):
     create_ship(db, schemas.ShipCreate.parse_obj(ship))
 
 
+def retrofit_ship(db: Session, ship_id: str, new_modules: str):
+    ship_query = query_ships_filtered(db, {'id': ship_id})
+    ship_query.update({'modules': new_modules})
+    db.commit()
+
+
 def restore_ship_hp_without_commit(db: Session, ship_id: str):
     max_hp = get_ship_by_id(db, ship_id).max_hp
     db.query(models.Ship).filter_by(id=ship_id).update({'hit_points': max_hp})

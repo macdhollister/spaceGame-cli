@@ -1,6 +1,7 @@
 """
 Usage:
     ship.py create
+    ship.py retrofit
     ship.py destroy
     ship.py damage
     ship.py restore
@@ -21,13 +22,26 @@ from src.utils.promptUtils import faction_prompt
 from src.utils.shipUtils import module_abbreviations, module_options
 
 
-def create_ship(database):
-    # TODO: Clean up this method, pull out utility methods
+def choose_modules(database, ship_size, faction_name):
+    faction_research = factionCrud.get_research(database, faction_name)
+    modules_array = []
 
+    for i in range(ship_size):
+        module_type = iq.select(
+            message="Module type:",
+            choices=module_options
+        ).execute()
+
+        module_abbreviation = module_abbreviations.get(module_type)
+        module_level = str(faction_research.get(module_type))
+        modules_array.append(module_abbreviation + module_level)
+
+    return ''.join(modules_array)
+
+
+def create_ship(database):
     planet_name = promptUtils.planet_prompt(database)
     faction_name = faction_prompt(database)
-
-    faction_research = factionCrud.get_research(database, faction_name)
 
     ship_size = iq.select(
         message="Class:",
@@ -53,21 +67,7 @@ def create_ship(database):
             'location': planet_name
         })
 
-    module_array = []
-
-    for i in range(ship_size):
-        module_type = iq.select(
-            message="Module type:",
-            choices=module_options
-        ).execute()
-
-        module_abbreviation = module_abbreviations.get(module_type)
-
-        module_level = str(faction_research.get(module_type))
-
-        module_array.append(module_abbreviation + module_level)
-
-    modules = ''.join(module_array)
+    modules = choose_modules(database, ship_size, faction_name)
 
     ship = {
         'owner': faction_name,
@@ -76,6 +76,26 @@ def create_ship(database):
     }
 
     shipCrud.create_ship_from_dict(database, ship)
+
+
+def retrofit_ship(database):
+    all_ships = filter(lambda ship: ship.modules != "COLONY", shipCrud.get_ships(database))
+    ship_choices = list(map(
+            lambda ship: {
+                "name": f"{ship.id} -- {ship.owner} {ship.modules}",
+                "value": {'id': ship.id, 'modules': ship.modules, 'owner': ship.owner}
+            },
+            all_ships
+        )
+    )
+    chosen = iq.fuzzy(
+        message="Select a ship:",
+        choices=ship_choices
+    ).execute()
+
+    modules = choose_modules(database, int(len(chosen['modules']) / 2), chosen['owner'])
+
+    shipCrud.retrofit_ship(database, chosen['id'], modules)
 
 
 def destroy_ship(database):
@@ -152,6 +172,7 @@ def get_all(database):
 
 switcher = {
     'create': create_ship,
+    'retrofit': retrofit_ship,
     'destroy': destroy_ship,
     'move': move_ship,
     'damage': damage_ship,
