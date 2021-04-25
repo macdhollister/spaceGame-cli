@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker
 
 from dotenv import load_dotenv
 import os
@@ -17,5 +16,3 @@ engine = create_engine(
 )
 
 event.listen(engine, 'connect', _fk_pragma_on_connect)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

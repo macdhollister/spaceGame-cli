@@ -1,11 +1,13 @@
 from src import models
-from src.database import SessionLocal, engine
+from src.database import engine
+from sqlalchemy.orm import sessionmaker
 from uuid import uuid4
 
 
-def get_db():
+def get_db(engine=engine):
     models.Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
+    session_local = sessionmaker()
+    db = session_local(autocommit=False, autoflush=False, bind=engine)
     return db
 
 
