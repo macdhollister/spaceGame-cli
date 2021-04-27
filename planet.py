@@ -1,28 +1,27 @@
 """
 Usage:
-    planet.py generate_planets
-    planet.py print_planets
-    planet.py print_single_planet
-    planet.py claim
-    planet.py colonize
-    planet.py reassign
-    planet.py upgrade
-    planet.py damage
-    planet.py restore
+    planet.py generate_planets [--db_url=<string>]
+    planet.py print_planets [--db_url=<string>]
+    planet.py print_single_planet [--db_url=<string>]
+    planet.py claim [--db_url=<string>]
+    planet.py colonize [--db_url=<string>]
+    planet.py reassign [--db_url=<string>]
+    planet.py upgrade [--db_url=<string>]
+    planet.py damage [--db_url=<string>]
+    planet.py restore [--db_url=<string>]
 """
 
 import json
 from sys import argv
-
-from docopt import docopt
-
-from src.utils.colonyUtils import colony_type_to_str
-from src.crud import planetCrud, shipCrud, factionCrud
-from src.utils import db, planetUtils, promptUtils
-
 from textwrap import dedent
 
 from InquirerPy import inquirer as iq
+from docopt import docopt
+
+from src.crud import planetCrud, shipCrud
+from src.utils import planetUtils, promptUtils
+from src.utils.colonyUtils import colony_type_to_str
+from src.utils.db import Database
 
 
 def get_planet_entry(database, planet, faction_name=None):
@@ -168,7 +167,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    db = db.get_db()
+    db = Database(kwargs['--db_url']).get_db()
 
     method = argv[1]
     switcher.get(method)(db)

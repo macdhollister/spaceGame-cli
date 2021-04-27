@@ -1,10 +1,16 @@
+"""
+Usage:
+    report.py [--db_url=<string>]
+"""
+
 from textwrap import dedent
 
 from InquirerPy import inquirer as iq
+from docopt import docopt
 
 from src.crud import shipCrud, planetCrud, factionCrud
-from src.utils import db
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
+from src.utils.db import Database
 from src.utils.facilityUtils import display_facilities
 from src.utils.shipUtils import ships_to_str_observed, group_ships_by_faction, ships_to_str_owned
 
@@ -154,7 +160,8 @@ def print_report(args):
 
 
 if __name__ == '__main__':
-    db = db.get_db()
+    kwargs = docopt(__doc__)
+    db = Database(kwargs['--db_url']).get_db()
 
     kwargs = {
         'db': db,
