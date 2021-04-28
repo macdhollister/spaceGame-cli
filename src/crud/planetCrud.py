@@ -146,8 +146,8 @@ def planet_visible_by_faction(db: Session, planet_name: str, faction_name: str):
     return faction_owns_planet | faction_has_ship
 
 
-def get_connection_names(database, planet_name):
-    connections = get_planet_by_name(database, planet_name).connections
+def get_connection_names(db: Session, planet_name: str):
+    connections = get_planet_by_name(db, planet_name).connections
 
     return list(map(lambda planet: planet.name, connections))
 
