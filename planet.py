@@ -96,11 +96,7 @@ def generate_planets(database):
     with open(planets_file_path) as f:
         planets_from_file = json.load(f)['planets']
 
-    try:
-        planetCrud.build_map(database, planets_from_file)
-    # TODO better exception handling
-    except Exception:
-        print("Could not generate map.")
+    planetCrud.build_map(database, planets_from_file)
 
 
 def claim_planet(database):
