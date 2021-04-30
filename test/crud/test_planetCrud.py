@@ -202,3 +202,22 @@ def test_colonize_planet__planet_owned_no_facilities(session):
     assert stored_planet.owner == "faction_1"
     assert stored_planet.colony_size == ColonyType.COLONY
     assert stored_planet.ships == []
+
+
+def test_colonize_planet__planet_owned_with_facilities(session):
+    FactionFactory(faction_name="faction_1")
+    FactionFactory(faction_name="faction_2")
+    FacilityFactory(id="123", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY, planet="planet_a")
+    PlanetFactory(name="planet_a", owner="faction_2")
+    ShipFactory(owner="faction_1", location="planet_a", modules="COLONY")
+
+    with pytest.raises(RuntimeError) as error_info:
+        planetCrud.colonize_planet(session, "planet_a", "faction_1")
+
+    stored_planet = planetCrud.get_planet_by_name(session, "planet_a")
+
+    assert str(error_info.value) == "planet_a is owned by faction_2 and has facilities built. Cannot be colonized."
+    assert stored_planet.owner == "faction_2"
+    assert len(stored_planet.ships) == 1
+
+

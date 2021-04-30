@@ -69,6 +69,10 @@ def reassign_planet(db: Session, planet_name, faction_name: str):
 def colonize_planet(db: Session, planet_name, faction_name: str):
     """Assigns an unowned planet to a player. Requires a colony ship in orbit, which is consumed."""
     planet_query = query_planet_by_name(db, planet_name)
+    planet = planet_query.first()
+
+    if planet.owner is not None and len(planet.facilities) > 0:
+        raise RuntimeError(f"{planet_name} is owned by {planet.owner} and has facilities built. Cannot be colonized.")
 
     ship_query_filters = {
         'owner': faction_name,
