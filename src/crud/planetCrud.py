@@ -48,7 +48,7 @@ def query_planet_by_name(db: Session, planet_name: str):
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
-    """Assigns an unowned planet to a player. No validations and no colony ship requied."""
+    """Assigns an unowned planet to a player. No validations and no colony ship required."""
     planet_query = db.query(models.Planet).filter_by(name=planet_name)
 
     planet_query.update({'owner': faction_name})
@@ -60,9 +60,8 @@ def reassign_planet(db: Session, planet_name, faction_name: str):
     planet_query = query_planet_by_name(db, planet_name)
 
     if not planet_query.first().owner:
-        raise ValueError("Planet not owned. Please use 'claim' or 'colonize'.")
+        raise ValueError(f"{planet_name} not owned. Please use 'claim' or 'colonize'.")
 
-    print(f"Planet reassigned from {planet_query.first().owner} to {faction_name}")
     planet_query.update({'owner': faction_name})
     db.commit()
 
