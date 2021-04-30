@@ -1,16 +1,12 @@
 import factory
 import pytest
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, event
 
 from src import models
 from src.models import *
 
 Session = sessionmaker()
-
-
-def _fk_pragma_on_connect(dbapi_con, con_record):
-    dbapi_con.execute('pragma foreign_keys=ON')
 
 
 class FacilityFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -32,11 +28,13 @@ class ShipFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Ship
 
+    # Defaults
+    modules = "D1"
+
 
 @pytest.fixture(scope='module')
 def connection():
     engine = create_engine('sqlite://')
-    event.listen(engine, 'connect', _fk_pragma_on_connect)
 
     connection = engine.connect()
     yield connection
