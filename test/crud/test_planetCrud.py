@@ -221,3 +221,28 @@ def test_colonize_planet__planet_owned_with_facilities(session):
     assert len(stored_planet.ships) == 1
 
 
+def test_upgrade_colony_type__unowned(session):
+    PlanetFactory(name="planet_a")
+
+    with pytest.raises(ValueError) as error_info:
+        planetCrud.upgrade_colony_type(session, "planet_a")
+
+    assert str(error_info.value) == "planet_a is unowned. Cannot be upgraded."
+
+
+def test_upgrade_colony_type__owned(session):
+    PlanetFactory(name="planet_a", owner="faction_1", colony_size=ColonyType.COLONY)
+
+    planetCrud.upgrade_colony_type(session, "planet_a")
+    stored_planet = planetCrud.get_planet_by_name(session, "planet_a")
+
+    assert stored_planet.colony_size == ColonyType.OUTPOST
+
+
+def test_upgrade_colony_type__fortress(session):
+    PlanetFactory(name="planet_a", owner="faction_1", colony_size=ColonyType.FORTRESS)
+
+    with pytest.raises(ValueError) as error_info:
+        planetCrud.upgrade_colony_type(session, "planet_a")
+
+    assert str(error_info.value) == "Only colonies, outposts, and strongholds can be upgraded."

@@ -108,6 +108,8 @@ def upgrade_colony_type(db: Session, planet_name: str):
 
         planet_query.update({'colony_size': new_colony_size})
         db.commit()
+    else:
+        raise ValueError(f"{planet_name} is unowned. Cannot be upgraded.")
 
 
 def create_planet(db: Session, planet: schemas.PlanetCreate):
