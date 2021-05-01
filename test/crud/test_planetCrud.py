@@ -413,7 +413,7 @@ def test_get_resource_production__non_existent_planet(session):
     with pytest.raises(ValueError) as error_info:
         planetCrud.get_resource_production(session, "not_a_planet", "mp")
 
-    assert str(error_info.value) == "The planet 'not_a_planet' does not exist."
+    assert str(error_info.value) == "Planet 'not_a_planet' does not exist"
 
 
 def test_get_max_garrison_points(session):

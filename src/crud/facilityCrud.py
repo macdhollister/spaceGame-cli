@@ -21,7 +21,18 @@ def query_facilities_on_planet(db: Session, planet_name: str):
 
 
 def create_facility_from_dict(db: Session, facility):
-    db_facility = schemas.FacilityCreate.parse_obj(facility)
+    try:
+        db_facility = schemas.FacilityCreate.parse_obj(facility)
+    except ValueError:
+        errors = []
+        if facility['facility_type'] not in set(item.value for item in FacilityType):
+            errors.append(f"{facility['facility_type']} is not a valid FacilityType")
+
+        if facility['planet'] not in planetCrud.get_planet_names(db):
+            errors.append(f"Planet '{facility['planet']}' does not exist")
+
+        raise ValueError(", ".join(errors))
+
     create_facility(db, db_facility)
 
 

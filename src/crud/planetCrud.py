@@ -44,7 +44,11 @@ def get_planet_by_name(db: Session, planet_name: str):
 
 
 def query_planet_by_name(db: Session, planet_name: str):
-    return db.query(models.Planet).filter_by(name=planet_name)
+    query = db.query(models.Planet).filter_by(name=planet_name)
+    if not query.first():
+        raise ValueError(f"Planet '{planet_name}' does not exist")
+
+    return query
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
@@ -224,9 +228,6 @@ def get_mp_production(db: Session, planet_name: str):
 
 
 def get_resource_production(db: Session, planet_name: str, resource_type: str):
-    if not get_planet_by_name(db, planet_name):
-        raise ValueError(f"The planet '{planet_name}' does not exist.")
-
     if resource_type.lower() == "mp":
         return get_mp_production(db, planet_name)
     elif resource_type.lower() == "rp":
