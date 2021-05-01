@@ -224,6 +224,9 @@ def get_mp_production(db: Session, planet_name: str):
 
 
 def get_resource_production(db: Session, planet_name: str, resource_type: str):
+    if not get_planet_by_name(db, planet_name):
+        raise ValueError(f"The planet '{planet_name}' does not exist.")
+
     if resource_type.lower() == "mp":
         return get_mp_production(db, planet_name)
     elif resource_type.lower() == "rp":
@@ -277,6 +280,9 @@ def get_planet_facilities(db: Session, planet_name: str):
 def has_facilities(db: Session, planet_name: str, facilities_set: set):
     """Takes a set of facility designations and returns a boolean
     depending on if the planet has any of those facilities"""
+
+    str_facilities = list(map(str, get_planet_facilities(db, planet_name)))
+
     return len(
-        facilities_set & set(get_planet_facilities(db, planet_name))
+        facilities_set & set(str_facilities)
     ) > 0

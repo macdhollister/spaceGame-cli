@@ -6,7 +6,7 @@ from src.utils.planetUtils import SpecialPlanet
 from test.conftest import *
 
 
-def test_generate_planets(session):
+def test_build_map(session):
     map_fixture = [
         {
             "name": "planet_a",
@@ -43,15 +43,15 @@ def test_generate_planets(session):
 
     assert map_fixture == list(
         map(
-          lambda planet: {
-            'name': planet.name,
-            'size': planet.size,
-            'resources': planet.resources,
-            'connections': sorted(list(map(lambda connection: connection.name, planet.connections)))
-          },
-          stored_planets
+            lambda planet: {
+                'name': planet.name,
+                'size': planet.size,
+                'resources': planet.resources,
+                'connections': sorted(list(map(lambda connection: connection.name, planet.connections)))
+            },
+            stored_planets
         )
-      )
+    )
 
 
 def test_get_planets(session):
@@ -246,3 +246,279 @@ def test_upgrade_colony_type__fortress(session):
         planetCrud.upgrade_colony_type(session, "planet_a")
 
     assert str(error_info.value) == "Only colonies, outposts, and strongholds can be upgraded."
+
+
+def test_planet_visible_by_faction__owned(session):
+    PlanetFactory(name="planet_a", owner="faction_1")
+    FactionFactory(faction_name="faction_1")
+
+    assert planetCrud.planet_visible_by_faction(session, "planet_a", "faction_1")
+
+
+def test_planet_visible_by_faction__unowned_with_ship(session):
+    PlanetFactory(name="planet_a", owner="faction_2")
+    FactionFactory(faction_name="faction_1")
+    FactionFactory(faction_name="faction_2")
+    ShipFactory(owner="faction_1", location="planet_a")
+
+    assert planetCrud.planet_visible_by_faction(session, "planet_a", "faction_1")
+
+
+def test_planet_visible_by_faction__unowned_without_ship(session):
+    PlanetFactory(name="planet_a", owner="faction_2")
+    FactionFactory(faction_name="faction_1")
+    FactionFactory(faction_name="faction_2")
+
+    assert not planetCrud.planet_visible_by_faction(session, "planet_a", "faction_1")
+
+
+def test_get_connection_names(session):
+    map_fixture = [
+        {
+            "name": "planet_a",
+            "size": "s",
+            "resources": 4,
+            "connections": ["planet_b", "planet_c"]
+        },
+        {
+            "name": "planet_b",
+            "size": "m",
+            "resources": 3,
+            "connections": ["planet_a", "planet_d"]
+        },
+        {
+            "name": "planet_c",
+            "size": "l",
+            "resources": 2,
+            "connections": ["planet_a", "planet_d"]
+        },
+        {
+            "name": "planet_d",
+            "size": "m",
+            "resources": 4,
+            "connections": ["planet_b", "planet_c"]
+        }
+    ]
+
+    planetCrud.build_map(session, map_fixture)
+
+    assert sorted(planetCrud.get_connection_names(session, "planet_a")) == ["planet_b", "planet_c"]
+    assert sorted(planetCrud.get_connection_names(session, "planet_b")) == ["planet_a", "planet_d"]
+    assert sorted(planetCrud.get_connection_names(session, "planet_c")) == ["planet_a", "planet_d"]
+    assert sorted(planetCrud.get_connection_names(session, "planet_d")) == ["planet_b", "planet_c"]
+
+
+def test_get_lp_production(session):
+    # No facilities
+    PlanetFactory(name="planet_a")
+
+    # Single basic HQ on standard world
+    PlanetFactory(name="planet_b")
+    FacilityFactory(planet="planet_b", level=FacilityLevel.BASIC, facility_type=FacilityType.FLEET_HQ)
+
+    # Multiple HQs of various levels on standard world
+    PlanetFactory(name="planet_c")
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FLEET_HQ)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.INTERMEDIATE, facility_type=FacilityType.FLEET_HQ)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.ADVANCED, facility_type=FacilityType.FLEET_HQ)
+
+    # Multiple HQs of various levels on a Logistics Hub
+    PlanetFactory(name="planet_d", special=SpecialPlanet.LOGISTICS)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.BASIC, facility_type=FacilityType.FLEET_HQ)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.ADVANCED, facility_type=FacilityType.FLEET_HQ)
+
+    planet_a_lp = planetCrud.get_lp_production(session, "planet_a")
+    planet_b_lp = planetCrud.get_lp_production(session, "planet_b")
+    planet_c_lp = planetCrud.get_lp_production(session, "planet_c")
+    planet_d_lp = planetCrud.get_lp_production(session, "planet_d")
+
+    assert planet_a_lp == 0
+    assert planet_b_lp == 2
+    assert planet_c_lp == 14
+    assert planet_d_lp == 12
+
+
+def test_get_rp_production(session):
+    # No facilities
+    PlanetFactory(name="planet_a")
+
+    # Single basic lab, standard world
+    PlanetFactory(name="planet_b")
+    FacilityFactory(planet="planet_b", level=FacilityLevel.BASIC, facility_type=FacilityType.LABORATORY)
+
+    # Multiple labs of various levels on standard world
+    PlanetFactory(name="planet_c")
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.INTERMEDIATE, facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.ADVANCED, facility_type=FacilityType.LABORATORY)
+
+    # Multiple labs of various levels on an artifact world
+    PlanetFactory(name="planet_d", special=SpecialPlanet.ARTIFACT)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.BASIC, facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.ADVANCED, facility_type=FacilityType.LABORATORY)
+
+    planet_a_rp = planetCrud.get_rp_production(session, "planet_a")
+    planet_b_rp = planetCrud.get_rp_production(session, "planet_b")
+    planet_c_rp = planetCrud.get_rp_production(session, "planet_c")
+    planet_d_rp = planetCrud.get_rp_production(session, "planet_d")
+
+    assert planet_a_rp == 0
+    assert planet_b_rp == 1
+    assert planet_c_rp == 7
+    assert planet_d_rp == 7
+
+
+def test_get_mp_production(session):
+    # No facilities
+    PlanetFactory(name="planet_a", resources=5)
+
+    # Single basic factory, low value world
+    PlanetFactory(name="planet_b", resources=2)
+    FacilityFactory(planet="planet_b", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+
+    # Multiple factories of various levels on mid-value world
+    PlanetFactory(name="planet_c", resources=4)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.INTERMEDIATE, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.ADVANCED, facility_type=FacilityType.FACTORY)
+
+    # Multiple factories of various levels on a high-value world
+    PlanetFactory(name="planet_d", resources=6)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.ADVANCED, facility_type=FacilityType.FACTORY)
+
+    planet_a_mp = planetCrud.get_mp_production(session, "planet_a")
+    planet_b_mp = planetCrud.get_mp_production(session, "planet_b")
+    planet_c_mp = planetCrud.get_mp_production(session, "planet_c")
+    planet_d_mp = planetCrud.get_mp_production(session, "planet_d")
+
+    assert planet_a_mp == 0
+    assert planet_b_mp == 2
+    assert planet_c_mp == 24
+    assert planet_d_mp == 24
+
+
+def test_get_resource_production__invalid_resource(session):
+    PlanetFactory(name="planet_a")
+
+    with pytest.raises(ValueError) as error_info:
+        planetCrud.get_resource_production(session, "planet_a", "not a resource")
+
+    assert str(error_info.value) == "Only 'mp', 'rp', and 'lp' are valid resource types."
+
+
+def test_get_resource_production__non_existent_planet(session):
+    PlanetFactory(name="planet_a")
+
+    with pytest.raises(ValueError) as error_info:
+        planetCrud.get_resource_production(session, "not_a_planet", "mp")
+
+    assert str(error_info.value) == "The planet 'not_a_planet' does not exist."
+
+
+def test_get_max_garrison_points(session):
+    # TODO: Include a planet with shields, without shields, and an empty planet
+    # Planet without any facilities
+    PlanetFactory(name="planet_a")
+
+    # Planet with facilities and no shields
+    PlanetFactory(name="planet_b")
+    FacilityFactory(planet="planet_b", facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_b", facility_type=FacilityType.LABORATORY)
+
+    # Planet with facilities and basic shields
+    PlanetFactory(name="planet_c")
+    FacilityFactory(planet="planet_c", facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.PLANETARY_SHIELDS)
+
+    # Planet with facilities and stacked Intermediate/Advanced shields
+    # Planet with facilities and basic shields
+    PlanetFactory(name="planet_d")
+    FacilityFactory(planet="planet_d", facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_d", facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.INTERMEDIATE, facility_type=FacilityType.PLANETARY_SHIELDS)
+    FacilityFactory(planet="planet_d", level=FacilityLevel.ADVANCED, facility_type=FacilityType.PLANETARY_SHIELDS)
+
+    planet_a_max_garrison = planetCrud.get_max_garrison_points(session, "planet_a")
+    planet_b_max_garrison = planetCrud.get_max_garrison_points(session, "planet_b")
+    planet_c_max_garrison = planetCrud.get_max_garrison_points(session, "planet_c")
+    planet_d_max_garrison = planetCrud.get_max_garrison_points(session, "planet_d")
+
+    assert planet_a_max_garrison == 0
+    assert planet_b_max_garrison == 2
+    assert planet_c_max_garrison == 4
+    assert planet_d_max_garrison == 10
+
+
+def test_reduce_garrison_points(session):
+    # TODO: Include a query that doesn't set amount_to_reduce and one that makes the garrison points negative
+    PlanetFactory(name="planet_a", garrison_points=4)
+    PlanetFactory(name="planet_b", garrison_points=4)
+    PlanetFactory(name="planet_c", garrison_points=4)
+
+    planetCrud.reduce_garrison_points(session, "planet_a", 2)
+    planetCrud.reduce_garrison_points(session, "planet_b", 10)  # reducing more than max should be acceptable
+    planetCrud.reduce_garrison_points(session, "planet_c")      # default reduction is 1
+
+    planet_a = planetCrud.get_planet_by_name(session, "planet_a")
+    planet_b = planetCrud.get_planet_by_name(session, "planet_b")
+    planet_c = planetCrud.get_planet_by_name(session, "planet_c")
+
+    assert planet_a.garrison_points == 2
+    assert planet_b.garrison_points == -6
+    assert planet_c.garrison_points == 3
+
+
+def test_get_planet_facilities(session):
+    # Planet with no facilities
+    PlanetFactory(name="planet_a")
+
+    # Planet with one facility
+    PlanetFactory(name="planet_b")
+    FacilityFactory(planet="planet_b", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+
+    # Planet with multiple facilities
+    PlanetFactory(name="planet_c")
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FLEET_HQ)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.DEFENSE_GRID)
+
+    planet_a_facilities = planetCrud.get_planet_facilities(session, "planet_a")
+    planet_b_facilities = planetCrud.get_planet_facilities(session, "planet_b")
+    planet_c_facilities = planetCrud.get_planet_facilities(session, "planet_c")
+
+    assert list(map(str, planet_a_facilities)) == []
+    assert list(map(str, planet_b_facilities)) == ['BF']
+    assert list(map(str, planet_c_facilities)) == ['BF', 'BF', 'BL', 'BQ', 'BD']
+
+
+def test_has_facilities(session):
+    # Planet with no facilities
+    PlanetFactory(name="planet_a")
+
+    # Planet with one facility
+    PlanetFactory(name="planet_b")
+    FacilityFactory(planet="planet_b", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+
+    # Planet with multiple facilities
+    PlanetFactory(name="planet_c")
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FACTORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.LABORATORY)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.FLEET_HQ)
+    FacilityFactory(planet="planet_c", level=FacilityLevel.BASIC, facility_type=FacilityType.DEFENSE_GRID)
+
+    assert not planetCrud.has_facilities(session, "planet_a", {'BF'})
+    assert not planetCrud.has_facilities(session, "planet_a", {'BF', 'BR', 'IR'})
+
+    assert planetCrud.has_facilities(session, "planet_b", {'BF'})
+    assert not planetCrud.has_facilities(session, "planet_b", {'BL'})
+    assert planetCrud.has_facilities(session, "planet_b", {'BF', 'AQ'})  # Should be true if ANY in the set exist
+
+    assert planetCrud.has_facilities(session, "planet_c", {'BF'})
+    assert planetCrud.has_facilities(session, "planet_c", {'BF', 'BL', 'BQ', 'BD'})
+    assert planetCrud.has_facilities(session, "planet_c", {'BF', 'IR'})  # Should be true if ANY in the set exist
+    assert not planetCrud.has_facilities(session, "planet_c", {'IR'})
