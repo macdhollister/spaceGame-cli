@@ -1,15 +1,8 @@
-import re
-
 from sqlalchemy.orm import Session
 
 from src import models
 from src import schemas
 from src.utils import shipUtils
-
-
-def validate_module_str(modules_str):
-    pattern = re.compile("^([ABCDHMPSWabcdhmpsw][1-9]){1,10}$")  # Example: W1D2M5
-    return bool(re.match(pattern, modules_str))
 
 
 def get_ships(db: Session):
@@ -54,7 +47,7 @@ def create_ship(db: Session, ship: schemas.ShipCreate):
     if ship.modules == "COLONY":
         return create_colony_ship(db, ship)
 
-    if not validate_module_str(ship.modules):
+    if not shipUtils.validate_module_str(ship.modules):
         raise ValueError("The modules string is invalid. Must match the regex ^([ABCDHMPSW][1-9]){1,10}$")
 
     db_ship = models.Ship(
@@ -85,6 +78,19 @@ def create_ship_from_dict(db: Session, ship):
 
 def retrofit_ship(db: Session, ship_id: str, new_modules: str):
     ship_query = query_ships_filtered(db, {'id': ship_id})
+
+    ship_current = ship_query.first()
+    size = shipUtils.get_size(ship_current)
+
+    if ship_current.modules == "COLONY":
+        raise ValueError("Cannot retrofit colony ship")
+
+    if len(new_modules)/2 != size:
+        raise ValueError(f"Ship '{ship_id}' must have exactly {size} modules")
+
+    if not shipUtils.validate_module_str(new_modules):
+        raise ValueError(f"New modules '{new_modules}' includes invalid modules")
+
     ship_query.update({'modules': new_modules})
     db.commit()
 
@@ -108,7 +114,7 @@ def restore_all(db: Session):
     db.commit()
 
 
-def damage_ship(db: Session, ship_id: str, damage: int):
+def damage_ship(db: Session, ship_id: str, damage: int = 1):
     ship_to_damage = get_ship_by_id(db, ship_id)
     damaged_hp = ship_to_damage.hit_points - damage
 

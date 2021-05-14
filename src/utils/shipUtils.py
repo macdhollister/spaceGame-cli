@@ -1,3 +1,4 @@
+import re
 from collections import Counter
 
 from sqlalchemy.orm import Session
@@ -127,3 +128,8 @@ def ships_to_str_observed(ship_list):
         ships_to_display.append(f"class {ship_type} x{counts[ship_type]}")
 
     return ', '.join(ships_to_display)
+
+
+def validate_module_str(modules_str):
+    pattern = re.compile("^([ABCDHMPSWabcdhmpsw][1-9]){1,10}$")  # Example: W1D2M5
+    return bool(re.match(pattern, modules_str))

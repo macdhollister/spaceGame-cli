@@ -64,7 +64,7 @@ def create_ship(database):
     if ship_size == "COLONY":
         return shipCrud.create_ship_from_dict(database, {
             'owner': faction_name,
-            'modules': ship_size,
+            'modules': "COLONY",
             'location': planet_name
         })
 
