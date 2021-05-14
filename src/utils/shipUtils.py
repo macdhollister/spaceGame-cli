@@ -1,6 +1,8 @@
 from collections import Counter
 
-from src.crud import shipCrud
+from sqlalchemy.orm import Session
+
+from src.crud import shipCrud, planetCrud
 
 module_types = [
     'armor_plating',
@@ -41,12 +43,37 @@ module_options = [
 ]
 
 
-def get_ship_choices_on_planet(database, planet_name):
-    ships = shipCrud.get_ships_on_planet(database, planet_name)
+def get_ship_choices_on_planet(db: Session, planet_name: str):
+    ships = shipCrud.get_ships_on_planet(db, planet_name)
     options = []
 
     for ship in ships:
         options.append(ship_to_str_full(ship))
+
+
+def determine_effective_detection_level(db: Session, planet_name: str, faction_name: str):
+    """Determines what level of stealth a faction can detect on a given planet"""
+    # Maximum stealth level is 10 (10 ECM modules), so all
+    # ships are detected if detection level is 11 or above
+
+    effective_detection_level = 0
+
+    planet = planetCrud.get_planet_by_name(db, planet_name)
+    ships_on_planet = shipCrud.get_ships_on_planet(db, planet_name)
+    ships_owned_by_faction = list(filter(lambda ship: ship.owner == faction_name, ships_on_planet))
+
+    if len(ships_owned_by_faction) > 0:
+        effective_detection_level += max(list(map(lambda ship: ship.detection_level, ships_owned_by_faction)))
+
+    planet_has_radar = planetCrud.has_facilities(db, planet_name, {'BR', 'IR', 'AR'})
+
+    if planet.owner == faction_name and planet_has_radar:
+        effective_detection_level += 11
+    for p in planet.connections:
+        if p.owner == faction_name and planetCrud.has_facilities(db, p.name, {'AR'}):
+            effective_detection_level += 11
+
+    return effective_detection_level
 
 
 def get_ships_with_factions(ships):

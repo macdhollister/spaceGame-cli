@@ -1,27 +1,10 @@
+import re
+
 from sqlalchemy.orm import Session
 
 from src import models
 from src import schemas
-
-from src.crud import planetCrud
-
-import re
-
-
-def get_module_type(module_string):
-    module_dict = {
-        "A": "Armor Plating",
-        "B": "Command Bridge",
-        "C": "ECM Suite",
-        "D": "Warp Drive",
-        "H": "Hangar Bay",
-        "M": "Marine Barracks",
-        "P": "Point Defense Battery",
-        "S": "Sensor Array",
-        "W": "Heavy Weapons Bay"
-    }
-
-    return module_dict[module_string]
+from src.utils import shipUtils
 
 
 def validate_module_str(modules_str):
@@ -29,33 +12,12 @@ def validate_module_str(modules_str):
     return bool(re.match(pattern, modules_str))
 
 
-def get_modules_from_str(modules_str):
-    if not validate_module_str(modules_str):
-        raise ValueError("The modules string is invalid. Must match the regex ^([ABCDHMPSW][1-9]){1,10}$")
-
-    modules_array = [modules_str[i:i + 2] for i in range(0, len(modules_str), 2)]
-    modules = {}
-
-    for module in modules_array:
-        split = list(module)
-        module_type = split[0]
-        tech_level = split[1]
-
-        if module_type in modules:
-            if tech_level != modules[module_type]['tech_level']:
-                raise ValueError("Like modules on the same ship must have the same tech level")
-
-            modules[module_type]['quantity'] += 1
-        else:
-            modules[module_type] = {
-                "tech_level": tech_level,
-                "quantity": 1
-            }
-    return modules
-
-
 def get_ships(db: Session):
     return query_ships_filtered(db, {}).all()
+
+
+def get_ship_by_id(db: Session, ship_id: str):
+    return db.query(models.Ship).filter_by(id=ship_id).first()
 
 
 def query_ships_filtered(db: Session, filters: dict):
@@ -63,28 +25,12 @@ def query_ships_filtered(db: Session, filters: dict):
 
 
 def get_visible_ships_on_planet(db: Session, planet_name: str, faction_name: str):
-    # TODO clean up this function -- separate out utility methods
     """Gets all ships in orbit of a planet which are visible to a faction"""
-    # Maximum stealth level is 10 (10 ECM modules), so all
-    # ships are detected if detection level is 11 or above
 
-    effective_detection_level = 0
+    effective_detection_level = shipUtils.determine_effective_detection_level(db, planet_name, faction_name)
     visible_ships = []
 
-    planet = planetCrud.get_planet_by_name(db, planet_name)
     ships_on_planet = get_ships_on_planet(db, planet_name)
-    ships_owned_by_faction = list(filter(lambda ship: ship.owner == faction_name, ships_on_planet))
-
-    if len(ships_owned_by_faction) > 0:
-        effective_detection_level += max(list(map(lambda ship: ship.detection_level, ships_owned_by_faction)))
-
-    planet_has_radar = planetCrud.has_facilities(db, planet_name, {'BR', 'IR', 'AR'})
-
-    if planet.owner == faction_name and planet_has_radar:
-        effective_detection_level += 11
-    for p in planet.connections:
-        if p.owner == faction_name and planetCrud.has_facilities(db, p.name, {'AR'}):
-            effective_detection_level += 11
 
     for ship in ships_on_planet:
         if ship.owner == faction_name or ship.stealth_level <= effective_detection_level:
@@ -95,10 +41,6 @@ def get_visible_ships_on_planet(db: Session, planet_name: str, faction_name: str
 
 def get_ships_on_planet(db: Session, planet_name: str):
     return db.query(models.Ship).filter_by(location=planet_name).all()
-
-
-def get_ship_by_id(db: Session, ship_id: str):
-    return db.query(models.Ship).filter_by(id=ship_id).first()
 
 
 def move_ship(db: Session, ship_id: str, destination_name: str):
