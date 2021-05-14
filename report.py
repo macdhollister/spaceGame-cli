@@ -1,6 +1,6 @@
 """
 Usage:
-    report.py [--db_url=<string>]
+    python report.py [--db_url=<string>]
 """
 
 from textwrap import dedent
