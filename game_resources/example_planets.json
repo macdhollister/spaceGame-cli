@@ -4,7 +4,7 @@
       "name": "planet_a",
       "size": "s",
       "resources": 4,
-      "connections": ["planet_b", "planet_c"]
+      "connections": ["planet_b", "planet_c", "planet_d"]
     },
     {
       "name": "planet_b",
