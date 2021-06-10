@@ -9,11 +9,11 @@ services:
   # USAGE:
   # 
   #   docker-compose run python 
-  #   docker-compose run python planet.py --help
-  #   docker-compose run python faction.py --help
-  #   docker-compose run python ship.py --help
-  #   docker-compose run python facility.py --help
-  #   docker-compose run python report.py --help
+  #   docker-compose run python planet.py
+  #   docker-compose run python faction.py
+  #   docker-compose run python ship.py
+  #   docker-compose run python facility.py
+  #   docker-compose run python report.py
   # 
   python:
     build: .
