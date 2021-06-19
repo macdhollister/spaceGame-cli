@@ -1,8 +1,6 @@
-from src.crud import planetCrud, facilityCrud
-from src.utils.colonyUtils import ColonyType
+from src.crud import facilityCrud
 from src.utils.facilityUtils import FacilityLevel, FacilityType
 
-from src.utils.planetUtils import SpecialPlanet
 from test.conftest import *
 
 
