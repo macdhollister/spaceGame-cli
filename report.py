@@ -2,7 +2,7 @@
 Usage:
     python report.py [--db_url=<string>]
 """
-
+from sys import argv
 from textwrap import dedent
 
 from InquirerPy import inquirer as iq
@@ -149,7 +149,16 @@ def generate_planets_section(args):
            """)
 
 
-def print_report(args):
+def print_report(database):
+
+    args = {
+        'db': database,
+        '--faction': iq.select(
+            message="Faction name:",
+            choices=factionCrud.get_faction_names(database)
+        ).execute()
+    }
+
     resources_section = generate_resources_section(args)
     module_research_section = generate_module_research_section(args)
     planets_section = generate_planets_section(args)
@@ -159,16 +168,16 @@ def print_report(args):
     print(planets_section)
 
 
+switcher = {
+    'print_report': print_report
+}
+
+
 if __name__ == '__main__':
+    if len(argv) == 1:
+        argv.append('-h')
     kwargs = docopt(__doc__)
     db = Database(kwargs['--db_url']).get_db()
 
-    kwargs = {
-        'db': db,
-        '--faction': iq.select(
-            message="Faction name:",
-            choices=factionCrud.get_faction_names(db)
-        ).execute()
-    }
-
-    print_report(kwargs)
+    method = argv[1]
+    switcher.get(method)(db)
