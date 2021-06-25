@@ -1,11 +1,11 @@
 """
 Usage:
-    faction.py generate_factions
-    faction.py update_research
-    faction.py update_resource
-    faction.py spend_resource
-    faction.py update_all_resources
-    faction.py print_factions
+    faction.py generate_factions [--db_url=<string>]
+    faction.py update_research [--db_url=<string>]
+    faction.py update_resource [--db_url=<string>]
+    faction.py spend_resource [--db_url=<string>]
+    faction.py update_all_resources [--db_url=<string>]
+    faction.py print_factions [--db_url=<string>]
 """
 
 import json
@@ -17,6 +17,7 @@ from docopt import docopt
 
 from src.crud import factionCrud
 from src.utils import db
+from src.utils.db import Database
 from src.utils.factionUtils import resource_types
 from src.utils.shipUtils import module_types
 
@@ -137,7 +138,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    db = db.get_db()
+    db = Database(kwargs['--db_url']).get_db()
 
     method = argv[1]
     switcher.get(method)(db)

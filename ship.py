@@ -1,13 +1,13 @@
 """
 Usage:
-    ship.py create
-    ship.py retrofit
-    ship.py destroy
-    ship.py damage
-    ship.py restore
-    ship.py restore_all
-    ship.py move
-    ship.py get_all
+    ship.py create [--db_url=<string>]
+    ship.py retrofit [--db_url=<string>]
+    ship.py destroy [--db_url=<string>]
+    ship.py damage [--db_url=<string>]
+    ship.py restore [--db_url=<string>]
+    ship.py restore_all [--db_url=<string>]
+    ship.py move [--db_url=<string>]
+    ship.py get_all [--db_url=<string>]
 """
 
 from sys import argv
@@ -17,7 +17,8 @@ from InquirerPy import inquirer as iq
 from docopt import docopt
 
 from src.crud import shipCrud, factionCrud, planetCrud
-from src.utils import db, promptUtils
+from src.utils import promptUtils
+from src.utils.db import Database
 from src.utils.promptUtils import faction_prompt
 from src.utils.shipUtils import module_abbreviations, module_options
 
@@ -63,7 +64,7 @@ def create_ship(database):
     if ship_size == "COLONY":
         return shipCrud.create_ship_from_dict(database, {
             'owner': faction_name,
-            'modules': ship_size,
+            'modules': "COLONY",
             'location': planet_name
         })
 
@@ -186,7 +187,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    db = db.get_db()
+    db = Database(kwargs['--db_url']).get_db()
 
     method = argv[1]
     switcher.get(method)(db)

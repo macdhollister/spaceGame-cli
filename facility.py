@@ -1,12 +1,12 @@
 """
 Usage:
-    facility.py get_facilities
-    facility.py create
-    facility.py upgrade
-    facility.py downgrade
-    facility.py damage
-    facility.py restore_single
-    facility.py restore_all
+    facility.py get_facilities [--db_url=<string>]
+    facility.py create [--db_url=<string>]
+    facility.py upgrade [--db_url=<string>]
+    facility.py downgrade [--db_url=<string>]
+    facility.py damage [--db_url=<string>]
+    facility.py restore_single [--db_url=<string>]
+    facility.py restore_all [--db_url=<string>]
 """
 
 from sys import argv
@@ -17,6 +17,7 @@ from docopt import docopt
 
 from src.crud import facilityCrud, planetCrud
 from src.utils import db, promptUtils
+from src.utils.db import Database
 from src.utils.facilityUtils import type_to_str, level_to_str, all_facility_types
 
 
@@ -116,7 +117,7 @@ if __name__ == '__main__':
     if len(argv) == 1:
         argv.append('-h')
     kwargs = docopt(__doc__)
-    db = db.get_db()
+    db = Database(kwargs['--db_url']).get_db()
 
     method = argv[1]
     switcher.get(method)(db)

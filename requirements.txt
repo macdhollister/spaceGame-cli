@@ -1,5 +1,7 @@
 attrs==20.3.0
 docopt==0.6.2
+factory-boy==3.2.0
+Faker==8.1.1
 iniconfig==1.1.1
 InquirerPy==0.1.0
 packaging==20.9
@@ -9,8 +11,11 @@ py==1.10.0
 pydantic==1.8.1
 pyparsing==2.4.7
 pytest==6.2.2
+python-dateutil==2.8.1
 python-dotenv==0.15.0
+six==1.15.0
 SQLAlchemy==1.3.23
+text-unidecode==1.3
 toml==0.10.2
 typing-extensions==3.7.4.3
 wcwidth==0.2.5

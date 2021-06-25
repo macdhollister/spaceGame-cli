@@ -1,10 +1,16 @@
+"""
+Usage:
+    python report.py [--db_url=<string>]
+"""
+from sys import argv
 from textwrap import dedent
 
 from InquirerPy import inquirer as iq
+from docopt import docopt
 
 from src.crud import shipCrud, planetCrud, factionCrud
-from src.utils import db
 from src.utils.colonyUtils import colony_type_to_str, maximum_facilities
+from src.utils.db import Database
 from src.utils.facilityUtils import display_facilities
 from src.utils.shipUtils import ships_to_str_observed, group_ships_by_faction, ships_to_str_owned
 
@@ -143,7 +149,16 @@ def generate_planets_section(args):
            """)
 
 
-def print_report(args):
+def print_report(database):
+
+    args = {
+        'db': database,
+        '--faction': iq.select(
+            message="Faction name:",
+            choices=factionCrud.get_faction_names(database)
+        ).execute()
+    }
+
     resources_section = generate_resources_section(args)
     module_research_section = generate_module_research_section(args)
     planets_section = generate_planets_section(args)
@@ -153,15 +168,16 @@ def print_report(args):
     print(planets_section)
 
 
+switcher = {
+    'print_report': print_report
+}
+
+
 if __name__ == '__main__':
-    db = db.get_db()
+    if len(argv) == 1:
+        argv.append('-h')
+    kwargs = docopt(__doc__)
+    db = Database(kwargs['--db_url']).get_db()
 
-    kwargs = {
-        'db': db,
-        '--faction': iq.select(
-            message="Faction name:",
-            choices=factionCrud.get_faction_names(db)
-        ).execute()
-    }
-
-    print_report(kwargs)
+    method = argv[1]
+    switcher.get(method)(db)

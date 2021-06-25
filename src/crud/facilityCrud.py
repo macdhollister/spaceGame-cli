@@ -1,11 +1,8 @@
 from sqlalchemy.orm import Session
 
 from src import models, schemas
-from src.utils.facilityUtils import FacilityType, FacilityLevel
-
 from src.crud import planetCrud
-
-import copy
+from src.utils.facilityUtils import FacilityType, FacilityLevel
 
 
 def query_facility_by_id(db: Session, facility_id: str):
@@ -21,7 +18,18 @@ def query_facilities_on_planet(db: Session, planet_name: str):
 
 
 def create_facility_from_dict(db: Session, facility):
-    db_facility = schemas.FacilityCreate.parse_obj(facility)
+    try:
+        db_facility = schemas.FacilityCreate.parse_obj(facility)
+    except ValueError:
+        errors = []
+        if facility['facility_type'] not in set(item.value for item in FacilityType):
+            errors.append(f"{facility['facility_type']} is not a valid FacilityType")
+
+        if facility['planet'] not in planetCrud.get_planet_names(db):
+            errors.append(f"Planet '{facility['planet']}' does not exist")
+
+        raise ValueError(", ".join(errors))
+
     create_facility(db, db_facility)
 
 
@@ -64,8 +72,8 @@ def downgrade_facility(db: Session, facility_id: str):
     elif facility_level == FacilityLevel.INTERMEDIATE:
         facility.level = FacilityLevel.BASIC
     elif facility_level == FacilityLevel.BASIC:
-        facility_to_destroy = destroy_facility(db, facility_id)
-        return print(f'Destroyed facility {facility_id} ({facility_to_destroy} on {facility_to_destroy.planet})')
+        destroy_facility(db, facility_id)
+        return
 
     facility_query.update({'level': facility.level})
     db.commit()
@@ -83,12 +91,8 @@ def damage_facility(db: Session, facility_id: str):
 
 
 def destroy_facility(db: Session, facility_id: str):
-    facility_to_delete = query_facility_by_id(db, facility_id).first()
-    facility_copy = copy.deepcopy(facility_to_delete)
-
     query_facility_by_id(db, facility_id).delete()
     db.commit()
-    return facility_copy
 
 
 def get_shield_contribution(facility):
@@ -105,14 +109,15 @@ def get_shield_contribution(facility):
 
 def get_planet_shield_points(db: Session, planet_name: str):
     all_facilities = planetCrud.get_planet_facilities(db, planet_name)
-    shield_point_map = list(map(lambda fac: get_shield_contribution(fac), all_facilities))
-    return sum(shield_point_map)
+    shield_point_list = list(map(lambda fac: get_shield_contribution(fac), all_facilities))
+    return sum(shield_point_list)
 
 
 def set_facility_shields(db: Session, facilities, total_shields: int):
-    # Note: This intentionally does not commit to the db to support efficiency for bulk updates
     for facility in facilities:
         query_facility_by_id(db, facility.id).update({'shields': total_shields})
+
+    db.commit()
 
 
 def restore_planet_facilities(db: Session, planet_name: str):
@@ -121,13 +126,9 @@ def restore_planet_facilities(db: Session, planet_name: str):
 
     set_facility_shields(db, facilities, total_shields)
 
-    db.commit()
-
 
 def restore_single_facility(db: Session, facility_id: str):
-    facility = query_facility_by_id(db, facility_id).all()
-    total_shields = get_planet_shield_points(db, facility[0].planet)
+    facility = query_facility_by_id(db, facility_id).first()
+    total_shields = get_planet_shield_points(db, facility.planet)
 
     set_facility_shields(db, facility, total_shields)
-
-    db.commit()

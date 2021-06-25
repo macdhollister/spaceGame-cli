@@ -44,11 +44,15 @@ def get_planet_by_name(db: Session, planet_name: str):
 
 
 def query_planet_by_name(db: Session, planet_name: str):
-    return db.query(models.Planet).filter_by(name=planet_name)
+    query = db.query(models.Planet).filter_by(name=planet_name)
+    if not query.first():
+        raise ValueError(f"Planet '{planet_name}' does not exist")
+
+    return query
 
 
 def claim_planet(db: Session, planet_name: str, faction_name: str):
-    """Assigns an unowned planet to a player. No validations and no colony ship requied."""
+    """Assigns an unowned planet to a player. No validations and no colony ship required."""
     planet_query = db.query(models.Planet).filter_by(name=planet_name)
 
     planet_query.update({'owner': faction_name})
@@ -60,9 +64,8 @@ def reassign_planet(db: Session, planet_name, faction_name: str):
     planet_query = query_planet_by_name(db, planet_name)
 
     if not planet_query.first().owner:
-        raise ValueError("Planet not owned. Please use 'claim' or 'colonize'.")
+        raise ValueError(f"{planet_name} not owned. Please use 'claim' or 'colonize'.")
 
-    print(f"Planet reassigned from {planet_query.first().owner} to {faction_name}")
     planet_query.update({'owner': faction_name})
     db.commit()
 
@@ -70,6 +73,10 @@ def reassign_planet(db: Session, planet_name, faction_name: str):
 def colonize_planet(db: Session, planet_name, faction_name: str):
     """Assigns an unowned planet to a player. Requires a colony ship in orbit, which is consumed."""
     planet_query = query_planet_by_name(db, planet_name)
+    planet = planet_query.first()
+
+    if planet.owner is not None and len(planet.facilities) > 0:
+        raise RuntimeError(f"{planet_name} is owned by {planet.owner} and has facilities built. Cannot be colonized.")
 
     ship_query_filters = {
         'owner': faction_name,
@@ -105,6 +112,8 @@ def upgrade_colony_type(db: Session, planet_name: str):
 
         planet_query.update({'colony_size': new_colony_size})
         db.commit()
+    else:
+        raise ValueError(f"{planet_name} is unowned. Cannot be upgraded.")
 
 
 def create_planet(db: Session, planet: schemas.PlanetCreate):
@@ -146,8 +155,8 @@ def planet_visible_by_faction(db: Session, planet_name: str, faction_name: str):
     return faction_owns_planet | faction_has_ship
 
 
-def get_connection_names(database, planet_name):
-    connections = get_planet_by_name(database, planet_name).connections
+def get_connection_names(db: Session, planet_name: str):
+    connections = get_planet_by_name(db, planet_name).connections
 
     return list(map(lambda planet: planet.name, connections))
 
@@ -272,6 +281,9 @@ def get_planet_facilities(db: Session, planet_name: str):
 def has_facilities(db: Session, planet_name: str, facilities_set: set):
     """Takes a set of facility designations and returns a boolean
     depending on if the planet has any of those facilities"""
+
+    str_facilities = list(map(str, get_planet_facilities(db, planet_name)))
+
     return len(
-        facilities_set & set(get_planet_facilities(db, planet_name))
+        facilities_set & set(str_facilities)
     ) > 0
