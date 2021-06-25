@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  # 
+  # For running any general python commands for this project.
+  # Note that dependencies are baked into the base image.
+  # 
+  # USAGE:
+  # 
+  #   docker-compose run python 
+  #   docker-compose run python planet.py
+  #   docker-compose run python faction.py
+  #   docker-compose run python ship.py
+  #   docker-compose run python facility.py
+  #   docker-compose run python report.py
+  # 
+  python:
+    build: .
+    entrypoint: python
+    volumes:
+      - .:/app
+    environment:
+      DATABASE_URL: ${DATABASE_URL:? add DATABASE_URL=sqlite:///your-name.db to .env file}
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+  # 
+  # For debugging this docker-compose environment or experimenting.
+  # 
+  # USAGE:
+  # 
+  #   docker-compose run debug
+  #
+  debug:
+    build: .
+    volumes:
+      - .:/app
+    entrypoint: /bin/bash
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
