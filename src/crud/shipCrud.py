@@ -36,11 +36,21 @@ def get_ships_on_planet(db: Session, planet_name: str):
     return db.query(models.Ship).filter_by(location=planet_name).all()
 
 
-def move_ship(db: Session, ship_id: str, destination_name: str):
-    ship = db.query(models.Ship).filter_by(id=ship_id)
-    ship.update({'location': destination_name})
+def move_ships(db: Session, ship_ids: list, destination_name: str):
+    ships = [query_ships_filtered(db, {'id': ship_id}) for ship_id in ship_ids]
+    ship_origins = [ship.first().location for ship in ships]
+
+    if len(set(ship_origins)) != 1:
+        raise ValueError("Ships must have the same origin location.")
+
+    for ship in ships:
+        ship.update({'location': destination_name})
+
     db.commit()
-    return ship
+
+
+def move_ship(db: Session, ship_id: str, destination_name: str):
+    move_ships(db, [ship_id], destination_name)
 
 
 def create_ship(db: Session, ship: schemas.ShipCreate):
