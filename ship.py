@@ -111,12 +111,12 @@ def move_ship(database):
     ships_on_origin = shipCrud.get_ships_on_planet(database, origin_location)
     ship_ids_on_origin = list(map(lambda ship: f"{ship.id}, modules: {ship.modules}, owner: {ship.owner}", ships_on_origin))
 
-    ship_selection = iq.select(
+    ship_selection = iq.checkbox(
         message="Ship:",
         choices=ship_ids_on_origin
     ).execute()
 
-    ship_id = ship_selection.split(',')[0]
+    ship_ids = [ship.split(',')[0] for ship in ship_selection]
 
     origin_connections = planetCrud.get_connection_names(database, origin_location)
 
@@ -125,7 +125,7 @@ def move_ship(database):
         choices=origin_connections
     ).execute()
 
-    shipCrud.move_ship(database, ship_id, destination)
+    shipCrud.move_ships(database, ship_ids, destination)
 
 
 def damage_ship(database):
