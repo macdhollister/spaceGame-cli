@@ -142,7 +142,35 @@ def test_get_visible_ships_on_planet__radar_detection(session):
     assert ships_to_id_list(planet_f_ships) == ['n']
 
 
-def test_move_ship(session):
+def test_move_ships(session):
+    PlanetFactory(name="planet_a")
+    PlanetFactory(name="planet_b")
+    ShipFactory(id="a", location="planet_a", modules="D1")
+    ShipFactory(id="b", location="planet_a", modules="D1")
+    ShipFactory(id="c", location="planet_a", modules="D1")
+
+    shipCrud.move_ships(session, ["a", "b", "c"], "planet_b")
+
+    assert shipCrud.get_ship_by_id(session, "a").location == "planet_b"
+    assert shipCrud.get_ship_by_id(session, "b").location == "planet_b"
+    assert shipCrud.get_ship_by_id(session, "c").location == "planet_b"
+
+
+def test_move_ships__invalid(session):
+    PlanetFactory(name="planet_a")
+    PlanetFactory(name="planet_b")
+    PlanetFactory(name="planet_c")
+    ShipFactory(id="a", location="planet_a", modules="D1")
+    ShipFactory(id="b", location="planet_b", modules="D1")
+    ShipFactory(id="c", location="planet_a", modules="D1")
+
+    with pytest.raises(ValueError) as error_info:
+        shipCrud.move_ships(session, ["a", "b", "c"], "planet_c")
+
+    assert str(error_info.value) == "Ships must have the same origin location."
+
+
+def test_move_ships__singular(session):
     PlanetFactory(name="planet_a")
     PlanetFactory(name="planet_b")
     ShipFactory(id="a", location="planet_a", modules="D1")
