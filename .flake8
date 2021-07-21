@@ -1,0 +1,6 @@
+[flake8]
+# E221: Multiple spaces before operator. Ignored to allow us to vertically align variable assignments.
+# E241: Multiple spaces after ','. Ignored to allow us to vertically align lists into multiple columns.
+# E501: Line too long. Ignored to allow for lines longer than 79 characters.
+# W605: invalid escape sequence '\.'. Ignored because these were occurring within sql strings (false positive).
+ignore=E221,E241,E501,W605

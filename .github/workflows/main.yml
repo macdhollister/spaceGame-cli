@@ -18,3 +18,6 @@ jobs:
       - name: Run Tests
         run: |
           pytest
+      - name: Run linter
+        run: |
+          flake8

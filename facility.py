@@ -16,7 +16,7 @@ from InquirerPy import inquirer as iq
 from docopt import docopt
 
 from src.crud import facilityCrud, planetCrud
-from src.utils import db, promptUtils
+from src.utils import promptUtils
 from src.utils.db import Database
 from src.utils.facilityUtils import type_to_str, level_to_str, all_facility_types
 

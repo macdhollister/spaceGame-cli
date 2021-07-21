@@ -82,13 +82,12 @@ def create_ship(database):
 def retrofit_ship(database):
     all_ships = filter(lambda ship: ship.modules != "COLONY", shipCrud.get_ships(database))
     ship_choices = list(map(
-            lambda ship: {
-                "name": f"{ship.id} -- {ship.owner} {ship.modules}",
-                "value": {'id': ship.id, 'modules': ship.modules, 'owner': ship.owner}
-            },
-            all_ships
-        )
-    )
+        lambda ship: {
+            "name": f"{ship.id} -- {ship.owner} {ship.modules}",
+            "value": {'id': ship.id, 'modules': ship.modules, 'owner': ship.owner}
+        },
+        all_ships
+    ))
     chosen = iq.fuzzy(
         message="Select a ship:",
         choices=ship_choices
@@ -165,8 +164,7 @@ def get_all(database):
                 location: {ship.location}
                 stealth level: {ship.stealth_level}
                 detection level: {ship.detection_level}
-                hit points: {ship.hit_points}
-                
+                hit points: {ship.hit_points}\n
                 """
         print(dedent(display))
 

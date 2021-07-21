@@ -1,7 +1,8 @@
 from src.crud import factionCrud
 from src.utils.facilityUtils import FacilityLevel, FacilityType
 
-from test.conftest import *
+from test.conftest import FactionFactory, PlanetFactory, FacilityFactory
+from src import models
 
 
 def test_get_resource_income(session):

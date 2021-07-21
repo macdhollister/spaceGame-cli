@@ -16,7 +16,6 @@ from InquirerPy import inquirer as iq
 from docopt import docopt
 
 from src.crud import factionCrud
-from src.utils import db
 from src.utils.db import Database
 from src.utils.factionUtils import resource_types
 from src.utils.shipUtils import module_types

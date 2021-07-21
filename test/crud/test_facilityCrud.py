@@ -1,7 +1,8 @@
 from src.crud import facilityCrud
 from src.utils.facilityUtils import FacilityLevel, FacilityType
 
-from test.conftest import *
+from test.conftest import FacilityFactory, PlanetFactory
+import pytest
 
 
 def test_query_facility_by_id(session):

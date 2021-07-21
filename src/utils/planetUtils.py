@@ -39,9 +39,7 @@ def validate_planets_file(file_name):
         if 'special' in planet.keys() and planet['special'] not in special_str_to_enum.keys():
             errors.append(f"Invalid special designation for {planet['name']}. Special must be one of: {list(special_str_to_enum.keys())}")
 
-        try:
-            resource_value = int(planet['resources'])
-        except ValueError:
+        if not planet['resources'].isdigit():
             errors.append(f"Invalid resource value for {planet['name']}. Resource values must be integers.")
 
         if name_counts.get(planet['name']) > 1:

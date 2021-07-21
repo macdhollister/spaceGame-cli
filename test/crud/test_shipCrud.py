@@ -2,7 +2,8 @@ from src.crud import shipCrud
 from src.utils import shipUtils
 from src.utils.facilityUtils import FacilityType, FacilityLevel
 
-from test.conftest import *
+from test.conftest import ShipFactory, PlanetFactory, FacilityFactory, FactionFactory, models
+import pytest
 
 
 def ships_to_id_list(ships):

@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 from src.schemas.ship import Ship
 from src.schemas.planet import Planet
-# from src.schemas.turn import Turn
 
 
 class FactionBase(BaseModel):

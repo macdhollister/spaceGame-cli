@@ -95,7 +95,7 @@ def retrofit_ship(db: Session, ship_id: str, new_modules: str):
     if ship_current.modules == "COLONY":
         raise ValueError("Cannot retrofit colony ship")
 
-    if len(new_modules)/2 != size:
+    if len(new_modules) / 2 != size:
         raise ValueError(f"Ship '{ship_id}' must have exactly {size} modules")
 
     if not shipUtils.validate_module_str(new_modules):

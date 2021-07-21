@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src import models
-from src.models import *
+from src.models import Facility, Faction, Ship, Planet
 
 Session = sessionmaker()
 
